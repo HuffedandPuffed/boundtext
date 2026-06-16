@@ -67,7 +67,7 @@ svg {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(20, 20, 20, 0.95);
+  background: var(--charcoal); /* Uses your rich brand charcoal (#1d1b18) */
   border-bottom: 1px solid rgba(213, 173, 98, 0.38);
   backdrop-filter: blur(18px);
 }
@@ -138,7 +138,7 @@ svg {
 
 .site-menu a {
   border-radius: 6px;
-  color: rgba(255, 253, 247, 0.7);
+  color: var(--white); /* Changes the grey text to your crisp theme white (#fffdf7) */
   font-family: var(--heading-font);
   font-size: 1.04rem;
   font-weight: 700;
