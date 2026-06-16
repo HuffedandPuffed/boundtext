@@ -942,3 +942,34 @@ textarea {
     gap: 0.5rem;
   }
 }
+/* ==========================================================================
+   SUBPAGE TEXT SIZING ADJUSTMENTS (Authors, Books, Barcode, Private)
+   ========================================================================== */
+
+/* 1. Tames the main titles at the top of subpages (e.g., "Authors", "Books") */
+.page-hero h1 {
+  font-size: clamp(1.8rem, 4vh, 2.8rem) !important; /* Brought down from 5rem */
+}
+
+/* 2. Tames the secondary section titles (e.g., "Meet the Team", "Our Collection") */
+h2, 
+.section h2, 
+.authors-list h2, 
+.tool-layout h2, 
+.private-gate h2 {
+  font-size: clamp(1.4rem, 2.5vw, 2rem) !important; /* Brought down from 3.1rem */
+}
+
+/* 3. Tames sub-section headers (e.g., individual book titles or tool panels) */
+h3 {
+  font-size: 1.2rem !important; /* Slightly softened from 1.45rem */
+}
+
+/* 4. OPTIONAL: If you feel the description paragraph text is too large, 
+      this safely shrinks it down to standard reading size */
+.page-hero > p, 
+.page-hero > div > p:not(.eyebrow),
+.intro-band > p {
+  font-size: 1rem !important; /* Softened from 1.1rem */
+  line-height: 1.6;
+}
