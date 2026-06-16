@@ -183,11 +183,17 @@ main {
   border-bottom: 1px solid rgba(213, 173, 98, 0.42);
 }
 
+/* THE NEW UPDATED CODE: */
 .hero-media {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(20, 20, 20, 0.92) 0%, rgba(20, 20, 20, 0.74) 38%, rgba(20, 20, 20, 0.18) 72%),
+    linear-gradient(90deg, 
+      rgba(17, 15, 13, 0.96) 0%,    /* Nearly solid dark at the left edge */
+      rgba(17, 15, 13, 0.88) 50%,   /* Stays strongly dark past the middle of the screen */
+      rgba(17, 15, 13, 0.4) 75%,    /* Softly begins fading out here */
+      transparent 100%              /* Fully clear on the far right to show the books */
+    ),
     url("assets/hero-publishing.png") center right / cover no-repeat;
 }
 
