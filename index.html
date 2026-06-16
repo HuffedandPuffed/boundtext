@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://bwipjs-api.metafloor.com; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <title>Huffed and Puffed Publishing</title>
+    <meta name="description" content="Huffed and Puffed Publishing: independent books with craft, nerve, and a quiet spark of mischief.">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Main navigation">
+        <a class="brand" href="#home" aria-label="Huffed and Puffed Publishing home">
+          <span class="brand-mark"><img src="assets/hp-logo.jpg" alt=""></span>
+          <span>
+            <strong>Huffed and Puffed</strong>
+            <small>Publishing</small>
+          </span>
+        </a>
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="site-menu" id="site-menu">
+          <a href="#home">Home</a>
+          <a href="#authors">Authors</a>
+          <a href="#books">Books</a>
+          <a href="#barcode">Barcode Maker</a>
+          <a href="#private">Private</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main"></main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>Huffed and Puffed Publishing</strong>
+        <p>Independent publishing for distinctive stories, useful guides, and curious readers.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#books">Bookshop</a>
+        <a href="#authors">Authors</a>
+        <a href="#barcode">Barcode Maker</a>
+      </div>
+    </footer>
+
+    <template id="icon-arrow">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"></path></svg>
+    </template>
+    <script src="content.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
