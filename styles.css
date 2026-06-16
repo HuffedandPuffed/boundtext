@@ -67,7 +67,7 @@ svg {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--charcoal); /* Uses your rich brand charcoal (#1d1b18) */
+  background: var(--charcoal);
   border-bottom: 1px solid rgba(213, 173, 98, 0.38);
   backdrop-filter: blur(18px);
 }
@@ -138,7 +138,7 @@ svg {
 
 .site-menu a {
   border-radius: 6px;
-  color: var(--white); /* Changes the grey text to your crisp theme white (#fffdf7) */
+  color: var(--white);
   font-family: var(--heading-font);
   font-size: 1.04rem;
   font-weight: 700;
@@ -183,16 +183,15 @@ main {
   border-bottom: 1px solid rgba(213, 173, 98, 0.42);
 }
 
-/* THE NEW UPDATED CODE: */
 .hero-media {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(90deg, 
-      rgba(17, 15, 13, 0.96) 0%,    /* Nearly solid dark at the left edge */
-      rgba(17, 15, 13, 0.88) 50%,   /* Stays strongly dark past the middle of the screen */
-      rgba(17, 15, 13, 0.4) 75%,    /* Softly begins fading out here */
-      transparent 100%              /* Fully clear on the far right to show the books */
+      rgba(17, 15, 13, 0.96) 0%,    
+      rgba(17, 15, 13, 0.88) 50%,   
+      rgba(17, 15, 13, 0.4) 75%,    
+      transparent 100%              
     ),
     url("assets/hero-publishing.png") center right / cover no-repeat;
 }
@@ -216,9 +215,7 @@ main {
 .hero-copy h1,
 .hero-copy > p:not(.eyebrow) {
   color: var(--white);
-  h1 {
   text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
-}
 }
 
 .eyebrow {
@@ -240,8 +237,8 @@ h3 {
 }
 
 h1 {
-  font-size: clamp(1.8rem, 10vw, 3.2rem); /* Lowered from 2.8rem / 15vw / 4.5rem */
-}
+  max-width: 12ch;
+  font-size: clamp(2.2rem, 5.5vw, 5rem); 
 }
 
 h2 {
@@ -878,7 +875,7 @@ textarea {
   }
 
   h1 {
-    font-size: clamp(2.8rem, 15vw, 4.5rem);
+    font-size: clamp(1.8rem, 10vw, 3.2rem);
   }
 
   .intro-band,
@@ -912,6 +909,7 @@ textarea {
     flex-wrap: wrap;
   }
 }
+
 /* ==========================================================================
    TABLET & MOBILE OPTIMIZATIONS (Pasted at the bottom)
    ========================================================================== */
@@ -926,14 +924,14 @@ textarea {
   /* 2. Shrinks the "A small press for..." paragraph text */
   .hero-copy > p:not(.eyebrow) {
     font-size: clamp(0.95rem, 2vw, 1.05rem);
-    margin-top: 0.8rem; /* Tightens the spacing above the text */
+    margin-top: 0.8rem;
   }
 
   /* 3. Scales down the Browse Books & Meet Authors buttons */
   .hero-actions .button {
-    font-size: 0.85rem;       /* Makes the text slightly smaller */
-    padding: 0.55rem 0.85rem;  /* Reduces internal padding around text */
-    min-height: 2.5rem;       /* Lowers the overall button height */
+    font-size: 0.85rem;       
+    padding: 0.55rem 0.85rem;  
+    min-height: 2.5rem;       
   }
   
   /* Tightens up the button row spacing */
@@ -942,13 +940,14 @@ textarea {
     gap: 0.5rem;
   }
 }
+
 /* ==========================================================================
    SUBPAGE TEXT SIZING ADJUSTMENTS (Authors, Books, Barcode, Private)
    ========================================================================== */
 
 /* 1. Tames the main titles at the top of subpages (e.g., "Authors", "Books") */
 .page-hero h1 {
-  font-size: clamp(1.8rem, 4vh, 2.8rem) !important; /* Brought down from 5rem */
+  font-size: clamp(1.8rem, 4vh, 2.8rem) !important; 
 }
 
 /* 2. Tames the secondary section titles (e.g., "Meet the Team", "Our Collection") */
@@ -957,19 +956,18 @@ h2,
 .authors-list h2, 
 .tool-layout h2, 
 .private-gate h2 {
-  font-size: clamp(1.4rem, 2.5vw, 2rem) !important; /* Brought down from 3.1rem */
+  font-size: clamp(1.4rem, 2.5vw, 2rem) !important; 
 }
 
 /* 3. Tames sub-section headers (e.g., individual book titles or tool panels) */
 h3 {
-  font-size: 1.2rem !important; /* Slightly softened from 1.45rem */
+  font-size: 1.2rem !important; 
 }
 
-/* 4. OPTIONAL: If you feel the description paragraph text is too large, 
-      this safely shrinks it down to standard reading size */
+/* 4. Safely shrinks subpage description text down to standard reading size */
 .page-hero > p, 
 .page-hero > div > p:not(.eyebrow),
 .intro-band > p {
-  font-size: 1rem !important; /* Softened from 1.1rem */
+  font-size: 1rem !important; 
   line-height: 1.6;
 }
