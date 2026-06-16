@@ -906,3 +906,33 @@ textarea {
     flex-wrap: wrap;
   }
 }
+/* ==========================================================================
+   TABLET & MOBILE OPTIMIZATIONS (Pasted at the bottom)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  
+  /* 1. Scales down the main "Huffed and Puffed" title for tablets & mobile */
+  .hero-copy h1 {
+    font-size: clamp(2rem, 7vw, 3.4rem);
+    line-height: 1.1;
+  }
+
+  /* 2. Shrinks the "A small press for..." paragraph text */
+  .hero-copy > p:not(.eyebrow) {
+    font-size: clamp(0.95rem, 2vw, 1.05rem);
+    margin-top: 0.8rem; /* Tightens the spacing above the text */
+  }
+
+  /* 3. Scales down the Browse Books & Meet Authors buttons */
+  .hero-actions .button {
+    font-size: 0.85rem;       /* Makes the text slightly smaller */
+    padding: 0.55rem 0.85rem;  /* Reduces internal padding around text */
+    min-height: 2.5rem;       /* Lowers the overall button height */
+  }
+  
+  /* Tightens up the button row spacing */
+  .hero-actions {
+    margin-top: 1.2rem;
+    gap: 0.5rem;
+  }
+}
