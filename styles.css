@@ -210,7 +210,9 @@ main {
 .hero-copy h1,
 .hero-copy > p:not(.eyebrow) {
   color: var(--white);
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.34);
+  h1 {
+  text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
+}
 }
 
 .eyebrow {
@@ -232,8 +234,8 @@ h3 {
 }
 
 h1 {
-  max-width: 12ch;
-  font-size: clamp(3rem, 8vw, 6.8rem);
+  font-size: clamp(1.8rem, 10vw, 3.2rem); /* Lowered from 2.8rem / 15vw / 4.5rem */
+}
 }
 
 h2 {
