@@ -217,3 +217,4 @@ authors: [
     warning: "This prototype password gate is client-side only. It is useful for drafts and convenience, but not for genuinely private files. Real file management should use server-side authentication."
   }
 };
+
