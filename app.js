@@ -180,7 +180,12 @@
           .map(
             (author) => `
               <article class="author-panel" id="${author.id}">
-                <div class="author-portrait">${author.initials}</div>
+               <div class="author-portrait">
+  ${author.image 
+    ? `<img src="${author.image}" alt="${author.name}">` 
+    : `<span>${author.initials}</span>`
+  }
+</div>
                 <div>
                   <p class="eyebrow">${author.role}</p>
                   <h2>${author.name}</h2>
