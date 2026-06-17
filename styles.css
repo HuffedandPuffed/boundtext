@@ -982,3 +982,23 @@ h3 {
   margin-bottom: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Soft modern shadow */
 }
+/* Author portrait styling */
+.author-portrait {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 20px;
+  flex-shrink: 0;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.author-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
