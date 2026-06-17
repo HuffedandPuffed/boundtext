@@ -180,7 +180,9 @@
           .map(
             (author) => `
               <article class="author-panel" id="${author.id}">
-                <div class="author-portrait">${author.initials}</div>
+                <div class="author-portrait">
+                  <img src="assets/${author.name.split(" ")[0]}.jpg" alt="${author.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;" onerror="this.style.display='none'; this.parentElement.innerHTML='${author.initials}';">
+                </div>
                 <div>
                   <p class="eyebrow">${author.role}</p>
                   <h2>${author.name}</h2>
