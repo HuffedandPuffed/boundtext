@@ -168,12 +168,11 @@
     `;
   }
 
-  function renderAuthors() {
+function renderAuthors() {
     main.innerHTML = `
       <section class="page-hero">
         <p class="eyebrow">Authors</p>
         <h1>Three voices, one compact publishing house.</h1>
-        <p>These biographies are polished placeholders. Replace them in <code>content.js</code> when final author details and photos are ready.</p>
       </section>
       <section class="authors-list">
         ${data.authors
@@ -181,7 +180,10 @@
             (author) => `
               <article class="author-panel" id="${author.id}">
                 <div class="author-portrait">
-                  <img src="assets/${author.name.split(" ")[0]}.jpg" alt="${author.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;" onerror="this.style.display='none'; this.parentElement.innerHTML='${author.initials}';">
+                  ${author.image ? `<img src="${author.image}" alt="${author.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ""}
+                  <div class="initials-fallback" style="${author.image ? 'display:none;' : 'display:flex;'} width:100%; height:100%; align-items:center; justify-content:center; background:#ddd; border-radius:50%; font-weight:bold;">
+                    ${author.initials}
+                  </div>
                 </div>
                 <div>
                   <p class="eyebrow">${author.role}</p>
