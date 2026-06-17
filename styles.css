@@ -1002,3 +1002,23 @@ h3 {
   height: 100%;
   object-fit: cover;
 }
+
+/* --- 1. Main Page Title Adjustment --- */
+/* Shrinks the giant "Huffed and Puffed Publishing" title on the home page hero */
+.hero-copy h1 {
+  font-size: 2.6rem; /* Lower this number (e.g., 2.2rem) if you want it even smaller to match the other pages */
+}
+
+/* --- 2. Header Logo Text Alignment --- */
+/* Forces the "PUBLISHING" sub-text to match the font, color, and style of "Huffed and Puffed" */
+.logo-text small, 
+header small, 
+.site-logo small,
+[class*="logo"] small,
+[class*="branding"] small {
+  font-family: inherit !important;   /* Copies the exact same font family as the line above it */
+  color: #fffdf7 !important;         /* Swaps the grey out for the clean text color */
+  text-transform: none !important;    /* Removes the forced ALL CAPS so it styles naturally */
+  font-size: 1.1rem !important;      /* Bumps the size up so it looks balanced and unified */
+  opacity: 1 !important;             /* Disables any default styling that was making it look faint */
+}
