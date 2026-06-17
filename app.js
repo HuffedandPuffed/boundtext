@@ -1,29 +1,50 @@
-authors: [
-  {
-    id: "colin-bamforth",
-    name: "Colin Bamforth",
-    role: "Publisher, Practical Nonfiction Author & Puzzle-Book Creator",
-    initials: "CB",
-    image: "assets/Colin.jpg",
-    bio: "Colin Bamforth is the visionary behind Huffed and Puffed Publishing. Operating at the intersection of structure and creativity, Colin is a dedicated practical nonfiction author and puzzle-book creator. Driven by a mission to champion human voices and amplify 'useful sparks,' he curates and designs books that engage the mind, challenge curious readers, and bring high-quality independent publishing to life.",
-    note: ""
-  },
-  {
-    id: "avery-solene",
-    name: "Avery Solene",
-    role: "Fiction & Contemporary Author",
-    initials: "AS",
-    image: "assets/Avery.jpg",
-    bio: "Born in Paris and previously based in the United Kingdom, Avery Solene has called Quebec, Canada home for the last eight years. Having transitioned from a multi-year background in the adult entertainment industry into a senior corporate executive role for a massive multi-national retail company, Avery writes with a profound, completely unfiltered understanding of reinvention, modern commerce, and the complex layers of human nature.",
-    note: ""
-  },
-  {
-    id: "russell-bruce",
-    name: "Russell Bruce",
-    role: "Fiction Author",
-    initials: "RB",
-    image: "assets/Russell.jpg",
-    bio: "Russell Bruce is a retired physics lecturer from the United Kingdom who has pursued creative writing as a passionate hobby since his late twenties. Infusing his narratives with the analytical precision of a scientist alongside the warmth of a lifelong storyteller, Russell crafts sharp-edged fiction that explores the intricate mechanics of human relationships and the wonders of the everyday world.",
-    note: ""
+(function () {
+  const data = window.HP_CONTENT;
+  const main = document.querySelector("#main");
+  const menuButton = document.querySelector(".menu-button");
+  const menu = document.querySelector("#site-menu");
+
+  function iconArrow() {
+    return document.querySelector("#icon-arrow") ? document.querySelector("#icon-arrow").innerHTML : "→";
   }
-],
+
+  function renderAuthors() {
+    main.innerHTML = `
+      <section class="page-hero">
+        <p class="eyebrow">Authors</p>
+        <h1>Three voices, one compact publishing house.</h1>
+      </section>
+      <section class="authors-list">
+        ${data.authors.map(author => `
+          <article class="author-panel" id="${author.id}">
+            <div class="author-portrait" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              ${author.image 
+                ? `<img src="${author.image}" alt="${author.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+                : ""}
+              <div class="initials" style="${author.image ? 'display:none;' : 'display:flex;'} width: 100%; height: 100%; align-items: center; justify-content: center; font-weight: bold;">
+                ${author.initials}
+              </div>
+            </div>
+            <div>
+              <p class="eyebrow">${author.role}</p>
+              <h2>${author.name}</h2>
+              <p>${author.bio}</p>
+            </div>
+          </article>
+        `).join("")}
+      </section>
+    `;
+  }
+
+  // Initial render trigger
+  function render() {
+    if (location.hash === "#authors") {
+      renderAuthors();
+    } else {
+      main.innerHTML = "<h1>Welcome to Huffed and Puffed</h1>";
+    }
+  }
+
+  window.addEventListener("hashchange", render);
+  render();
+})();
