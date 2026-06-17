@@ -1022,3 +1022,10 @@ header small,
   font-size: 1.1rem !important;      /* Bumps the size up so it looks balanced and unified */
   opacity: 1 !important;             /* Disables any default styling that was making it look faint */
 }
+
+/* This forces images to fit their container and prevents them from breaking the page */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
