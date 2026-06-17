@@ -826,16 +826,34 @@
     menu.classList.remove("open");
     menuButton.setAttribute("aria-expanded", "false");
 
-    if (route === "#authors") renderAuthors();
-    else if (route === "#books") renderBooks(params.get("author") || "");
-    else if (route === "#barcode") renderBarcode();
-    else if (route === "#barcode-pro") renderBarcode();
-    else if (route === "#private") renderPrivate();
-    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
-    else renderHome();
-
-    wireGlobalControls();
-    window.scrollTo({ top: 0, behavior: "auto" });
+    if (route === "#authors") function renderAuthors() {
+    main.innerHTML = `
+      <section class="page-hero">
+        <p class="eyebrow">Authors</p>
+        <h1>Three voices, one compact publishing house.</h1>
+        <p>These biographies are polished placeholders. Replace them in <code>content.js</code> when final author details and photos are ready.</p>
+      </section>
+      <section class="authors-list">
+        ${data.authors
+          .map(
+            (author) => `
+              <article class="author-panel" id="${author.id}">
+                <div class="author-portrait">
+                  ${author.image ? `<img src="${author.image}" alt="${author.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : author.initials}
+                </div>
+                <div>
+                  <p class="eyebrow">${author.role}</p>
+                  <h2>${author.name}</h2>
+                  <p>${author.bio}</p>
+                  <p class="quiet">${author.note}</p>
+                  <a class="text-link" href="#books?author=${encodeURIComponent(author.name)}">View ${author.name.split(" ")[0]}'s books ${iconArrow()}</a>
+                </div>
+              </article>
+            `
+          )
+          .join("")}
+      </section>
+    `;
   }
 
   menuButton.addEventListener("click", () => {
