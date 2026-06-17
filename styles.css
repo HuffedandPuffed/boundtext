@@ -971,3 +971,14 @@ h3 {
   font-size: 1rem !important; 
   line-height: 1.6;
 }
+/* Modern Author Bio Portraits */
+.author-image {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;          /* Forces the image into a perfect circle */
+  object-fit: cover;           /* Centers and crops the photo automatically */
+  object-position: center top; /* Keeps the focus on their faces */
+  border: 3px solid #e2e8f0;   /* Adds a clean, subtle border outline */
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Soft modern shadow */
+}
