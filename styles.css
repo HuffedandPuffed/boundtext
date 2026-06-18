@@ -1,7 +1,3 @@
-/* ==========================================================================
-   COMPLETE STYLES.CSS
-   ========================================================================== */
-
 :root {
   --paper: #f8efe0;
   --paper-deep: #ead9ba;
@@ -9,68 +5,36 @@
   --charcoal: #1d1b18;
   --muted: #71664f;
   --line: #d2b77f;
-  --blue: #253744;
-  --green: #455b4a;
-  --coral: #8f4b3c;
   --gold: #d6ab59;
-  --gold-deep: #a97c2e;
-  --gold-dark: #8d6422;
   --heading-font: Garamond, "EB Garamond", "Cormorant Garamond", Georgia, serif;
   --white: #fffdf7;
-  --shadow: 0 18px 55px rgba(20, 20, 20, 0.16);
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: radial-gradient(circle at top left, rgba(213, 171, 89, 0.12), transparent 22rem), #171511;
-  color: rgba(255, 253, 247, 0.9);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.55;
-}
-a { color: inherit; text-decoration: none; }
+body { margin: 0; background: #171511; color: var(--white); font-family: sans-serif; }
+a { text-decoration: none; color: inherit; }
 
-.site-header { position: sticky; top: 0; z-index: 10; background: var(--charcoal); border-bottom: 1px solid rgba(213, 173, 98, 0.38); backdrop-filter: blur(18px); }
-.nav-shell { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; margin: 0 auto; padding: 0.8rem clamp(1rem, 3vw, 2rem); gap: 1rem; }
+/* --- HEADER & BRANDING --- */
+.site-header { position: sticky; top: 0; z-index: 10; background: var(--charcoal); border-bottom: 1px solid rgba(213, 173, 98, 0.38); padding: 0.5rem 0; }
+.nav-shell { display: flex; align-items: center; max-width: 1180px; margin: 0 auto; padding: 0 2rem; }
 
-/* BRANDING SECTION */
-.brand { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; }
-.brand-mark {
-  display: grid; place-items: center;
-  width: 3.5rem; height: 3.5rem;
-  border-radius: 8px; background: #111;
-  border: 1px solid rgba(213, 173, 98, 0.45);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-}
-.brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
+.brand { display: flex; align-items: center; gap: 1rem; margin-right: auto; }
+.brand-mark { width: 3rem; height: 3rem; border: 1px solid rgba(213, 173, 98, 0.45); border-radius: 8px; overflow: hidden; }
+.brand-mark img { width: 100%; height: 100%; object-fit: cover; }
 
-.brand strong { display: block; color: var(--white); font-family: var(--heading-font); font-size: 1.15rem; }
-.brand small {
-  display: block;
-  color: #ffffff !important;
-  font-family: var(--heading-font) !important;
-  font-size: 0.85rem !important;
-  text-transform: capitalize !important;
-  letter-spacing: 0.05em;
-  font-weight: 500 !important;
+.brand-text strong { display: block; font-family: var(--heading-font); font-size: 1.1rem; }
+.brand-text small { 
+    display: block; 
+    font-family: var(--heading-font); 
+    font-size: 0.85rem; 
+    color: var(--white); 
+    text-transform: capitalize; 
 }
 
-/* NAVIGATION & LAYOUT */
-.site-menu { display: flex; align-items: center; gap: 0.3rem; }
-.site-menu a { border-radius: 6px; color: var(--white); font-family: var(--heading-font); font-size: 1.04rem; font-weight: 700; padding: 0.65rem 0.8rem; }
-.site-menu a:hover { background: rgba(213, 173, 98, 0.16); }
+/* --- NAVIGATION --- */
+.site-menu { display: flex; gap: 1.5rem; align-items: center; }
+.site-menu a { font-family: var(--heading-font); font-weight: 700; color: var(--white); }
 
-main { min-height: 70vh; background: #171511; }
-.hero { position: relative; display: grid; align-items: center; min-height: 80vh; overflow: hidden; border-bottom: 1px solid rgba(213, 173, 98, 0.42); }
-.hero-copy { position: relative; max-width: 680px; padding: 4rem 2rem; }
-h1 { font-family: var(--heading-font); font-size: 4rem; color: var(--white); }
-
-.button { display: inline-flex; align-items: center; padding: 0.72rem 1rem; border-radius: 7px; font-weight: 800; cursor: pointer; text-decoration: none; }
-.button.primary { background: linear-gradient(180deg, #e3bd6b, var(--gold)); color: #141414; }
-.button.secondary { background: #141414; border: 1px solid rgba(213, 173, 98, 0.58); color: var(--gold); }
-
-@media (max-width: 760px) {
-  .hero { min-height: 60vh; }
-  h1 { font-size: 2.5rem; }
-}
+/* --- HERO SECTION --- */
+.hero { padding: 4rem 2rem; max-width: 1180px; margin: 0 auto; }
+h1 { font-family: var(--heading-font); font-size: 3.5rem; margin-bottom: 1rem; }
