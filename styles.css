@@ -98,41 +98,40 @@ svg {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
+/* --- UPDATED FOR A LARGER LOGO --- */
 .brand-mark {
-  width: 4rem;    /* Increased from 3.15rem */
-  height: 4rem;   /* Increased from 3.15rem */
+  width: 4.8rem !important;   /* Significantly wider footprint */
+  height: 4.8rem !important;  /* Significantly taller footprint */
   border-radius: 8px;
   font-family: var(--heading-font);
   font-weight: 700;
   border: 1px solid rgba(213, 173, 98, 0.45);
 }
 
+/* --- UPDATED TO PREVENT SQUISHING --- */
 .brand-mark img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain !important; /* Preserves your monogram's perfect shape */
   border-radius: inherit;
 }
 
-/* 3. Ensure the logo fills the new, larger container nicely */
-.brand-mark img {
+.brand strong {
   display: block;
-  width: 90%;     /* Optional: gives it a tiny breathing room inside the box */
-  height: 90%;
-  margin: auto;   /* Centers the image perfectly if you use less than 100% */
-  object-fit: contain; /* Changed from 'cover' to 'contain' to see the full logo */
-  border-radius: inherit;
+  color: var(--white);
+  font-family: var(--heading-font);
+  font-size: 1.15rem; /* Marginally bumped to balance the larger logo badge */
 }
 
-/* 2. Add font-family to .brand small so it matches 'Bound Text' */
+/* --- UPDATED TO FIX HEADER FONT MISMATCH --- */
 .brand small {
   display: block;
-  color: rgba(255, 253, 247, 0.68);
-  font-family: var(--heading-font); /* ADDED: This fixes the font mismatch */
-  font-size: 0.78rem;
+  color: rgba(255, 253, 247, 0.68) !important;
+  font-family: var(--heading-font) !important; /* Hard forces the elegant book font */
+  font-size: 0.82rem !important;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: uppercase !important;
 }
 
 .site-menu {
@@ -916,30 +915,25 @@ textarea {
 }
 
 /* ==========================================================================
-   TABLET & MOBILE OPTIMIZATIONS (Pasted at the bottom)
+    TABLET & MOBILE OPTIMIZATIONS
    ========================================================================== */
 @media (max-width: 1024px) {
-  
-  /* 1. Scales down the main "Bound Text" title for tablets & mobile */
   .hero-copy h1 {
     font-size: clamp(2rem, 7vw, 3.4rem);
     line-height: 1.1;
   }
 
-  /* 2. Shrinks the "A small press for..." paragraph text */
   .hero-copy > p:not(.eyebrow) {
     font-size: clamp(0.95rem, 2vw, 1.05rem);
     margin-top: 0.8rem;
   }
 
-  /* 3. Scales down the Browse Books & Meet Authors buttons */
   .hero-actions .button {
     font-size: 0.85rem;       
     padding: 0.55rem 0.85rem;  
     min-height: 2.5rem;       
   }
   
-  /* Tightens up the button row spacing */
   .hero-actions {
     margin-top: 1.2rem;
     gap: 0.5rem;
@@ -947,15 +941,12 @@ textarea {
 }
 
 /* ==========================================================================
-   SUBPAGE TEXT SIZING ADJUSTMENTS (Authors, Books, Barcode, Private)
+    SUBPAGE TEXT SIZING ADJUSTMENTS
    ========================================================================== */
-
-/* 1. Tames the main titles at the top of subpages (e.g., "Authors", "Books") */
 .page-hero h1 {
   font-size: clamp(1.8rem, 4vh, 2.8rem) !important; 
 }
 
-/* 2. Tames the secondary section titles (e.g., "Meet the Team", "Our Collection") */
 h2, 
 .section h2, 
 .authors-list h2, 
@@ -964,30 +955,29 @@ h2,
   font-size: clamp(1.4rem, 2.5vw, 2rem) !important; 
 }
 
-/* 3. Tames sub-section headers (e.g., individual book titles or tool panels) */
 h3 {
   font-size: 1.2rem !important; 
 }
 
-/* 4. Safely shrinks subpage description text down to standard reading size */
 .page-hero > p, 
 .page-hero > div > p:not(.eyebrow),
 .intro-band > p {
   font-size: 1rem !important; 
   line-height: 1.6;
 }
+
 /* Modern Author Bio Portraits */
 .author-image {
   width: 140px;
   height: 140px;
-  border-radius: 50%;          /* Forces the image into a perfect circle */
-  object-fit: cover;           /* Centers and crops the photo automatically */
-  object-position: center top; /* Keeps the focus on their faces */
-  border: 3px solid #e2e8f0;   /* Adds a clean, subtle border outline */
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 3px solid #e2e8f0;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Soft modern shadow */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
-/* Author portrait styling */
+
 .author-portrait {
   width: 100px;
   height: 100px;
@@ -1008,51 +998,29 @@ h3 {
   object-fit: cover;
 }
 
-/* --- 1. Main Page Title Adjustment --- */
-/* Shrinks the giant "Bound Text Publishing" title on the home page hero */
 .hero-copy h1 {
-  font-size: 2.6rem; /* Lower this number (e.g., 2.2rem) if you want it even smaller to match the other pages */
+  font-size: 2.6rem;
 }
 
-/* --- 2. Header Logo Text Alignment --- */
-/* Forces the "PUBLISHING" sub-text to match the font, color, and style of "Bound Text" */
-.logo-text small, 
-header small, 
-.site-logo small,
-[class*="logo"] small,
-[class*="branding"] small {
-  font-family: inherit !important;   /* Copies the exact same font family as the line above it */
-  color: #fffdf7 !important;         /* Swaps the grey out for the clean text color */
-  text-transform: none !important;    /* Removes the forced ALL CAPS so it styles naturally */
-  font-size: 1.1rem !important;      /* Bumps the size up so it looks balanced and unified */
-  opacity: 1 !important;             /* Disables any default styling that was making it look faint */
-}
-
-/* This forces images to fit their container and prevents them from breaking the page */
+/* Global images containment layout rule */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
+
 /* ==========================================================================
-   BOUND TEXT LOGO HEADER FIX
+    CLEAN CONFLICT OVERRIDES (FORCED NAVIGATION ALIGNMENT)
    ========================================================================== */
-
-/* 1. Untrap the logo from the tiny square box restrictions */
-.brand-mark {
-  width: auto !important;
-  height: auto !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-/* 2. Style the new logo image so it displays beautifully in the nav bar */
-.brand img,
-.brand-mark img {
-  display: block !important;
-  height: 38px !important;       /* Adjust this number to make the logo taller or shorter */
-  width: auto !important;         /* Allows your rectangular logo to stretch wide naturally */
-  object-fit: contain !important; /* Prevents distortion */
-  border-radius: 0 !important;    /* Removes the old icon's rounded corners */
+.brand div small,
+.logo-text small, 
+header small, 
+.site-logo small,
+[class*="logo"] small,
+[class*="branding"] small {
+  font-family: var(--heading-font) !important; /* Forces the correct font family over generic fallback overrides */
+  color: rgba(255, 253, 247, 0.68) !important;
+  text-transform: uppercase !important;       /* Clean structured appearance */
+  font-size: 0.82rem !important;               /* Matches parent branding proportions */
+  opacity: 1 !important;
 }
