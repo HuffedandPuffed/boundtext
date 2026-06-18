@@ -1,12 +1,12 @@
 /*
-  Huffed and Puffed Publishing content file.
+  Bound Text Publishing content file.
   Edit this file to add authors, books, Amazon marketplaces, direct-sale links,
   launch notices, and private-page settings.
 */
 
 window.HP_CONTENT = {
   company: {
-    name: "Huffed and Puffed Publishing",
+    name: "Bound Text",
     strapline: "Independent books with craft, nerve, and a quiet spark of mischief.",
     intro:
       "A small press for sharp-edged fiction, practical books, and word search books. We keep the list focused, the voice human, and the door open for curious readers.",
@@ -22,7 +22,7 @@ authors: [
     role: "Publisher, Practical Nonfiction Author & Puzzle-Book Creator",
     initials: "CB",
     image: "assets/Colin.jpg",
-    bio: "Colin Bamforth is the visionary behind Huffed and Puffed Publishing. Operating at the intersection of structure and creativity, Colin is a dedicated practical nonfiction author and puzzle-book creator. Driven by a mission to champion human voices and amplify 'useful sparks,' he curates and designs books that engage the mind, challenge curious readers, and bring high-quality independent publishing to life.",
+    bio: "Colin Bamforth is the visionary behind Bound Text & Huffed and Puffed Publishing. Operating at the intersection of structure and creativity, Colin is a dedicated practical nonfiction author and puzzle-book creator. Driven by a mission to champion human voices and amplify 'useful sparks,' he curates and designs books that engage the mind, challenge curious readers, and bring high-quality independent publishing to life.",
     note: ""
   },
   {
