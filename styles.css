@@ -99,8 +99,8 @@ svg {
 }
 
 .brand-mark {
-  width: 3.15rem;
-  height: 3.15rem;
+  width: 4rem;    /* Increased from 3.15rem */
+  height: 4rem;   /* Increased from 3.15rem */
   border-radius: 8px;
   font-family: var(--heading-font);
   font-weight: 700;
@@ -115,16 +115,21 @@ svg {
   border-radius: inherit;
 }
 
-.brand strong {
+/* 3. Ensure the logo fills the new, larger container nicely */
+.brand-mark img {
   display: block;
-  color: var(--white);
-  font-family: var(--heading-font);
-  font-size: 1.05rem;
+  width: 90%;     /* Optional: gives it a tiny breathing room inside the box */
+  height: 90%;
+  margin: auto;   /* Centers the image perfectly if you use less than 100% */
+  object-fit: contain; /* Changed from 'cover' to 'contain' to see the full logo */
+  border-radius: inherit;
 }
 
+/* 2. Add font-family to .brand small so it matches 'Bound Text' */
 .brand small {
   display: block;
   color: rgba(255, 253, 247, 0.68);
+  font-family: var(--heading-font); /* ADDED: This fixes the font mismatch */
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
