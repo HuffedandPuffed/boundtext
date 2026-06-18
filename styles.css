@@ -1051,28 +1051,3 @@ img {
   object-fit: contain !important; /* Prevents distortion */
   border-radius: 0 !important;    /* Removes the old icon's rounded corners */
 }
-/* ==========================================================================
-   BOUND TEXT LOGO HEADER FIX (ANTI-COLLAPSE VERSION)
-   ========================================================================== */
-
-/* 1. Turn off grid mode and give the container a real, uncollapsible footprint */
-.brand-mark {
-  display: inline-block !important; 
-  width: auto !important;
-  min-width: 120px !important;      /* Guarantees the logo has horizontal space to exist */
-  height: 40px !important;          /* Sets a crisp, clean height for the navbar */
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-/* 2. Force the image itself to fill that height and scale out sideways */
-.brand img,
-.brand-mark img {
-  display: block !important;
-  height: 40px !important;
-  width: auto !important;
-  max-width: 200px !important;
-  object-fit: contain !important;  /* Ensures your text logo doesn't look stretched */
-  border-radius: 0 !important;
-}
