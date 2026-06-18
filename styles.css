@@ -1029,3 +1029,25 @@ img {
   height: auto;
   display: block;
 }
+/* ==========================================================================
+   BOUND TEXT LOGO HEADER FIX
+   ========================================================================== */
+
+/* 1. Untrap the logo from the tiny square box restrictions */
+.brand-mark {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* 2. Style the new logo image so it displays beautifully in the nav bar */
+.brand img,
+.brand-mark img {
+  display: block !important;
+  height: 38px !important;       /* Adjust this number to make the logo taller or shorter */
+  width: auto !important;         /* Allows your rectangular logo to stretch wide naturally */
+  object-fit: contain !important; /* Prevents distortion */
+  border-radius: 0 !important;    /* Removes the old icon's rounded corners */
+}
