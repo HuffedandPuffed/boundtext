@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com; style-src 'self'; img-src 'self' data: https://bwipjs-api.metafloor.com; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
     <title>Free Barcode Maker & QR Code Generator | BoundText</title>
     <meta name="description" content="Bound Text Publishing: independent books with craft, nerve, and a quiet spark of mischief. Featuring a free online barcode maker and QR code generator.">
     <link rel="stylesheet" href="styles.css">
@@ -59,6 +59,7 @@
     <template id="icon-arrow">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"></path></svg>
     </template>
+    <script src="bwip-js.min.js"></script>
     <script src="content.js"></script>
     <script src="app.js"></script>
   </body>
