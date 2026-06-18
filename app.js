@@ -210,7 +210,7 @@
       <section class="page-hero books-hero">
         <div>
           <p class="eyebrow">Bookshop</p>
-          <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "All Huffed and Puffed Publishing books."}</h1>
+          <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "Bound Text."}</h1>
           <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace. Colin Bamforth titles also include a direct-purchase placeholder for stock you hold yourself."}</p>
         </div>
         ${renderMarketplaceSelect("inline")}
