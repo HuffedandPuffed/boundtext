@@ -473,52 +473,20 @@
 
   function drawBarcode(canvas, value) {
     const leftOdd = {
-      0: "0001101",
-      1: "0011001",
-      2: "0010011",
-      3: "0111101",
-      4: "0100011",
-      5: "0110001",
-      6: "0101111",
-      7: "0111011",
-      8: "0110111",
-      9: "0001011"
+      0: "0001101", 1: "0011001", 2: "0010011", 3: "0111101", 4: "0100011",
+      5: "0110001", 6: "0101111", 7: "0111011", 8: "0110111", 9: "0001011"
     };
     const leftEven = {
-      0: "0100111",
-      1: "0110011",
-      2: "0011011",
-      3: "0100001",
-      4: "0011101",
-      5: "0111001",
-      6: "0000101",
-      7: "0010001",
-      8: "0001001",
-      9: "0010111"
+      0: "0100111", 1: "0110011", 2: "0011011", 3: "0100001", 4: "0011101",
+      5: "0111001", 6: "0000101", 7: "0010001", 8: "0001001", 9: "0010111"
     };
     const right = {
-      0: "1110010",
-      1: "1100110",
-      2: "1101100",
-      3: "1000010",
-      4: "1011100",
-      5: "1001110",
-      6: "1010000",
-      7: "1000100",
-      8: "1001000",
-      9: "1110100"
+      0: "1110010", 1: "1100110", 2: "1101100", 3: "1000010", 4: "1011100",
+      5: "1001110", 6: "1010000", 7: "1000100", 8: "1001000", 9: "1110100"
     };
     const parity = {
-      0: "OOOOOO",
-      1: "OOEOEE",
-      2: "OOEEOE",
-      3: "OOEEEO",
-      4: "OEOOEE",
-      5: "OEEOOE",
-      6: "OEEEOO",
-      7: "OEOEOE",
-      8: "OEOEEO",
-      9: "OEEOEO"
+      0: "OOOOOO", 1: "OOEOEE", 2: "OOEEOE", 3: "OOEEEO", 4: "OEOOEE",
+      5: "OEEOOE", 6: "OEEEOO", 7: "OEOEOE", 8: "OEOEEO", 9: "OEEOEO"
     };
 
     const ctx = canvas.getContext("2d");
@@ -719,6 +687,7 @@
       currentDownloadUrl = "";
       message.textContent = "This value is outside the range or rules for the selected barcode format. Check the required length, digits, and check digit.";
     });
+    
     function queueGenerate() {
       window.clearTimeout(autoGenerateTimer);
       autoGenerateTimer = window.setTimeout(() => generate(), 250);
@@ -726,16 +695,45 @@
 
     type.addEventListener("change", generate);
     input.addEventListener("input", queueGenerate);
+    
+    // Rewritten download handler to fix cross-origin resource block errors
     document.querySelector("#download-barcode").addEventListener("click", () => {
+      const cleanFileName = `barcode-${input.value.replace(/[^a-zA-Z0-9]/g, "") || "draft"}.png`;
+
       if (currentDownloadUrl) {
-        window.open(currentDownloadUrl, "_blank", "noopener");
+        // Silently grab the image bytes as a data blob
+        fetch(currentDownloadUrl)
+          .then((response) => {
+            if (!response.ok) throw new Error("Image download failed");
+            return response.blob();
+          })
+          .then((blob) => {
+            // Transform the byte array into a clickable data string
+            const localUrl = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = localUrl;
+            link.download = cleanFileName;
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up the memory references immediately
+            document.body.removeChild(link);
+            URL.revokeObjectURL(localUrl);
+          })
+          .catch((err) => {
+            // Backup fallback plan if browser configuration blocks dynamic background fetches
+            window.open(currentDownloadUrl, "_blank", "noopener");
+          });
         return;
       }
+
+      // Handle standard local canvas downloads
       const link = document.createElement("a");
-      link.download = `barcode-${input.value.replace(/\D/g, "") || "draft"}.png`;
+      link.download = cleanFileName;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
+    
     generate();
   }
 
