@@ -271,252 +271,8 @@
     apply();
   }
 
-  function ean13Checksum(firstTwelve) {
-    const sum = firstTwelve
-      .split("")
-      .map(Number)
-      .reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 1 : 3), 0);
-    return String((10 - (sum % 10)) % 10);
-  }
-
-  function isbn10Checksum(firstNine) {
-    const sum = firstNine
-      .split("")
-      .map(Number)
-      .reduce((total, digit, index) => total + digit * (10 - index), 0);
-    const remainder = 11 - (sum % 11);
-    if (remainder === 10) return "X";
-    if (remainder === 11) return "0";
-    return String(remainder);
-  }
-
-  function upcChecksum(firstEleven) {
-    const sum = firstEleven
-      .split("")
-      .map(Number)
-      .reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 3 : 1), 0);
-    return String((10 - (sum % 10)) % 10);
-  }
-
-  function ean8Checksum(firstSeven) {
-    const sum = firstSeven
-      .split("")
-      .map(Number)
-      .reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 3 : 1), 0);
-    return String((10 - (sum % 10)) % 10);
-  }
-
-  function gs1Checksum(digitsWithoutCheck) {
-    const reversed = digitsWithoutCheck.split("").reverse().map(Number);
-    const sum = reversed.reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 3 : 1), 0);
-    return String((10 - (sum % 10)) % 10);
-  }
-
   function cleanCode(value) {
     return value.toUpperCase().replace(/[^0-9X]/g, "");
-  }
-
-  function isbn10To13(value) {
-    const raw = cleanCode(value);
-    if (raw.length !== 10) return null;
-    const body = raw.slice(0, 9);
-    if (isbn10Checksum(body) !== raw[9]) return null;
-    const firstTwelve = `978${body}`;
-    return firstTwelve + ean13Checksum(firstTwelve);
-  }
-
-  function isbn13To10(value) {
-    const raw = cleanCode(value);
-    if (raw.length !== 13 || !raw.startsWith("978") || ean13Checksum(raw.slice(0, 12)) !== raw[12]) return null;
-    const body = raw.slice(3, 12);
-    return body + isbn10Checksum(body);
-  }
-
-  function normalizeBookBarcode(type, value) {
-    const raw = cleanCode(value);
-    if (type === "isbn13") {
-      if (raw.length === 10) return isbn10To13(raw);
-      if (raw.length === 12) return raw + ean13Checksum(raw);
-      if (raw.length === 13 && (raw.startsWith("978") || raw.startsWith("979")) && ean13Checksum(raw.slice(0, 12)) === raw[12]) return raw;
-      return null;
-    }
-    if (type === "issn") {
-      const base = raw.length >= 8 ? raw.slice(0, 7) : raw.slice(0, 7);
-      if (base.length !== 7) return null;
-      const firstTwelve = `977${base}00`;
-      return firstTwelve + ean13Checksum(firstTwelve);
-    }
-    if (type === "ismn") {
-      const digits = raw.replace(/X/g, "");
-      if (digits.length === 12) return digits + ean13Checksum(digits);
-      if (digits.length === 13 && digits.startsWith("9790") && ean13Checksum(digits.slice(0, 12)) === digits[12]) return digits;
-      return null;
-    }
-    if (type === "upca") {
-      const digits = raw.replace(/X/g, "");
-      if (digits.length === 11) return `0${digits}${upcChecksum(digits)}`;
-      if (digits.length === 12 && upcChecksum(digits.slice(0, 11)) === digits[11]) return `0${digits}`;
-      return null;
-    }
-    return raw;
-  }
-
-  function validateServiceBarcode(type, value) {
-    const digits = cleanCode(value).replace(/X/g, "");
-    const text = value.trim();
-
-    if (type === "ean8") {
-      if (digits.length === 7) return { value: digits + ean8Checksum(digits), message: "Check digit added for EAN-8." };
-      if (digits.length === 8 && ean8Checksum(digits.slice(0, 7)) === digits[7]) return { value: digits, message: "Valid EAN-8 generated." };
-      return { error: "EAN-8 must be 7 digits plus a calculated check digit, or 8 valid digits. ISBN/EAN-13 values are outside the EAN-8 range." };
-    }
-
-    if (type === "upca") {
-      if (digits.length === 11) return { value: digits + upcChecksum(digits), message: "Check digit added for UPC-A." };
-      if (digits.length === 12 && upcChecksum(digits.slice(0, 11)) === digits[11]) return { value: digits, message: "Valid UPC-A generated." };
-      return { error: "UPC-A must be 11 digits plus a calculated check digit, or 12 valid digits. ISBN/EAN-13 values are outside the UPC-A range." };
-    }
-
-    if (type === "upce") {
-      if (digits.length === 6 || digits.length === 8) return { value: digits, message: "UPC-E generated. Use 6 compressed digits, or 8 digits including number system and check digit." };
-      return { error: "UPC-E is a compressed UPC format and usually needs 6 digits, or 8 digits including number system and check digit. ISBN/EAN-13 values are outside the UPC-E range." };
-    }
-
-    if (type === "itf14") {
-      if (digits.length === 13) return { value: digits + gs1Checksum(digits), message: "Check digit added for ITF-14." };
-      if (digits.length === 14 && gs1Checksum(digits.slice(0, 13)) === digits[13]) return { value: digits, message: "Valid ITF-14 generated." };
-      return { error: "ITF-14 must be 13 digits plus a calculated check digit, or 14 valid digits." };
-    }
-
-    if (type === "interleaved2of5") {
-      if (digits.length >= 2 && digits.length % 2 === 0) return { value: digits, message: "Interleaved 2 of 5 generated." };
-      return { error: "Interleaved 2 of 5 requires numeric input with an even number of digits." };
-    }
-
-    if (["code128", "datamatrix", "azteccode", "pdf417", "qrcode"].includes(type)) {
-      if (text) return { value: text, message: `${type === "qrcode" ? "QR Code" : "Barcode"} generated for the supplied value.` };
-      return { error: "Enter a value before generating this format." };
-    }
-
-    return { value: text };
-  }
-
-  function drawCode39(canvas, value) {
-    const patterns = {
-      "0": "101001101101",
-      "1": "110100101011",
-      "2": "101100101011",
-      "3": "110110010101",
-      "4": "101001101011",
-      "5": "110100110101",
-      "6": "101100110101",
-      "7": "101001011011",
-      "8": "110100101101",
-      "9": "101100101101",
-      A: "110101001011",
-      B: "101101001011",
-      C: "110110100101",
-      D: "101011001011",
-      E: "110101100101",
-      F: "101101100101",
-      G: "101010011011",
-      H: "110101001101",
-      I: "101101001101",
-      J: "101011001101",
-      K: "110101010011",
-      L: "101101010011",
-      M: "110110101001",
-      N: "101011010011",
-      O: "110101101001",
-      P: "101101101001",
-      Q: "101010110011",
-      R: "110101011001",
-      S: "101101011001",
-      T: "101011011001",
-      U: "110010101011",
-      V: "100110101011",
-      W: "110011010101",
-      X: "100101101011",
-      Y: "110010110101",
-      Z: "100110110101",
-      "-": "100101011011",
-      ".": "110010101101",
-      " ": "100110101101",
-      "$": "100100100101",
-      "/": "100100101001",
-      "+": "100101001001",
-      "%": "101001001001",
-      "*": "100101101101"
-    };
-    const safe = `*${value.toUpperCase().replace(/[^0-9A-Z .\-$\/+%]/g, "") || "HP"}*`;
-    const pattern = safe.split("").map((char) => patterns[char]).join("0");
-    drawBinaryBarcode(canvas, pattern, safe);
-  }
-
-  function drawBinaryBarcode(canvas, pattern, label) {
-    const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "#fffdf7";
-    ctx.fillRect(0, 0, width, height);
-    const padding = 28;
-    const barWidth = (width - padding * 2) / pattern.length;
-    ctx.fillStyle = "#141414";
-    pattern.split("").forEach((isBar, index) => {
-      if (isBar === "1") ctx.fillRect(padding + index * barWidth, 24, Math.max(1, barWidth * 0.92), height - 72);
-    });
-    ctx.font = "18px Georgia, serif";
-    ctx.textAlign = "center";
-    ctx.fillText(label, width / 2, height - 24);
-  }
-
-  function drawBarcode(canvas, value) {
-    const leftOdd = {
-      0: "0001101", 1: "0011001", 2: "0010011", 3: "0111101", 4: "0100011",
-      5: "0110001", 6: "0101111", 7: "0111011", 8: "0110111", 9: "0001011"
-    };
-    const leftEven = {
-      0: "0100111", 1: "0110011", 2: "0011011", 3: "0100001", 4: "0011101",
-      5: "0111001", 6: "0000101", 7: "0010001", 8: "0001001", 9: "0010111"
-    };
-    const right = {
-      0: "1110010", 1: "1100110", 2: "1101100", 3: "1000010", 4: "1011100",
-      5: "1001110", 6: "1010000", 7: "1000100", 8: "1001000", 9: "1110100"
-    };
-    const parity = {
-      0: "OOOOOO", 1: "OOEOEE", 2: "OOEEOE", 3: "OOEEEO", 4: "OEOOEE",
-      5: "OEEOOE", 6: "OEEEOO", 7: "OEOEOE", 8: "OEOEEO", 9: "OEEOEO"
-    };
-
-    const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "#fffdf7";
-    ctx.fillRect(0, 0, width, height);
-
-    const digits = value.split("").map(Number);
-    let pattern = "101";
-    const sidePattern = parity[digits[0]];
-    for (let index = 1; index <= 6; index += 1) {
-      pattern += sidePattern[index - 1] === "O" ? leftOdd[digits[index]] : leftEven[digits[index]];
-    }
-    pattern += "01010";
-    for (let index = 7; index <= 12; index += 1) {
-      pattern += right[digits[index]];
-    }
-    pattern += "101";
-
-    const padding = 28;
-    const barWidth = (width - padding * 2) / pattern.length;
-    ctx.fillStyle = "#15202b";
-    pattern.split("").forEach((isBar, index) => {
-      if (isBar === "1") ctx.fillRect(padding + index * barWidth, 24, Math.max(1, barWidth * 0.92), height - 72);
-    });
-    ctx.font = "18px Georgia, serif";
-    ctx.textAlign = "center";
-    ctx.fillText(value, width / 2, height - 24);
   }
 
   function renderBarcode() {
@@ -581,10 +337,6 @@
         </form>
         <div class="barcode-preview">
           <canvas id="barcode-canvas" width="720" height="320" aria-label="Barcode preview"></canvas>
-          <div class="qr-preview" id="barcode-image-preview" hidden>
-            <img alt="Barcode or QR preview">
-            <p class="quiet">Specialist formats are rendered through a public barcode image service. ISBN/EAN checksum validation happens locally before rendering.</p>
-          </div>
         </div>
       </section>
     `;
@@ -593,100 +345,41 @@
     const input = document.querySelector("#barcode-input");
     const message = document.querySelector("#barcode-message");
     const canvas = document.querySelector("#barcode-canvas");
-    const imageBox = document.querySelector("#barcode-image-preview");
-    const image = imageBox.querySelector("img");
-    let currentDownloadUrl = "";
     let autoGenerateTimer = 0;
-
-    function barcodeServiceUrl(format, value) {
-      const params = new URLSearchParams({
-        bcid: format,
-        text: value,
-        scale: "3",
-        includetext: "true",
-        textxalign: "center"
-      });
-      return `https://bwipjs-api.metafloor.com/?${params.toString()}`;
-    }
-
-    function clearPreview() {
-      image.removeAttribute("src");
-      imageBox.hidden = true;
-      imageBox.style.display = "none";
-      canvas.hidden = false;
-      canvas.style.display = "block";
-      currentDownloadUrl = "";
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#fffdf7";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
 
     function generate(event) {
       if (event) event.preventDefault();
       const selectedType = type.value;
       const rawValue = input.value.trim();
-      clearPreview();
 
-      if (selectedType === "isbn13" || selectedType === "issn" || selectedType === "ismn") {
-        const converted = normalizeBookBarcode(selectedType, rawValue);
-        if (!converted) {
-          message.textContent = "That value does not match the selected publishing format or has an invalid checksum.";
-          return;
-        }
-        input.value = converted;
-        drawBarcode(canvas, converted);
-        const isbn10 = isbn13To10(converted);
-        message.textContent = isbn10
-          ? `ISBN prefix and checksum are valid. ISBN-10 equivalent: ${isbn10}. Official ISBN assignment cannot be confirmed without an ISBN registry lookup.`
-          : `Valid publishing EAN-13 generated: ${converted}. Official ISBN/ISSN/ISMN assignment cannot be confirmed without the relevant registry.`;
+      // Clear layout canvas with uniform white background color
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fffdf7";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (!rawValue) {
+        message.textContent = "Enter a value before generating.";
         return;
       }
 
-      if (selectedType === "ean13") {
-        const raw = cleanCode(rawValue).replace(/X/g, "");
-        const value = raw.length === 12 ? raw + ean13Checksum(raw) : raw;
-        if (value.length !== 13 || ean13Checksum(value.slice(0, 12)) !== value[12]) {
-          message.textContent = "Enter 12 digits to add a check digit, or a valid 13-digit EAN.";
-          return;
-        }
-        input.value = value;
-        drawBarcode(canvas, value);
-        message.textContent = `Valid EAN-13 generated: ${value}.`;
-        return;
+      try {
+        // Direct native invocation using the local script assembly bundle
+        window.bwipjs.toCanvas(canvas, {
+          bcid: selectedType,
+          text: rawValue,
+          scale: 3,
+          includetext: true,
+          textxalign: "center",
+          backgroundcolor: "fffdf7"
+        });
+        message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
+      } catch (e) {
+        message.textContent = "Invalid characters or data length configuration rules for the selected format standard.";
       }
-
-      if (selectedType === "code39") {
-        drawCode39(canvas, rawValue);
-        message.textContent = "Code 39 generated locally for inventory, shelf, and workflow labels.";
-        return;
-      }
-
-      const validation = validateServiceBarcode(selectedType, rawValue);
-      if (validation.error) {
-        message.textContent = validation.error;
-        return;
-      }
-
-      canvas.hidden = true;
-      canvas.style.display = "none";
-      imageBox.hidden = false;
-      imageBox.style.display = "grid";
-      const serviceType = selectedType === "qrcode" ? "qrcode" : selectedType;
-      const value = validation.value || data.company.name;
-      currentDownloadUrl = barcodeServiceUrl(serviceType, value);
-      image.src = currentDownloadUrl;
-      message.textContent = validation.message || `${type.options[type.selectedIndex].text} generated for the supplied value.`;
     }
 
     form.addEventListener("submit", generate);
-    image.addEventListener("error", () => {
-      image.removeAttribute("src");
-      imageBox.hidden = true;
-      imageBox.style.display = "none";
-      currentDownloadUrl = "";
-      message.textContent = "This value is outside the range or rules for the selected barcode format. Check the required length, digits, and check digit.";
-    });
     
     function queueGenerate() {
       window.clearTimeout(autoGenerateTimer);
@@ -696,38 +389,9 @@
     type.addEventListener("change", generate);
     input.addEventListener("input", queueGenerate);
     
-    // Rewritten download handler to fix cross-origin resource block errors
+    // Completely native canvas extraction bypassing all security rules
     document.querySelector("#download-barcode").addEventListener("click", () => {
       const cleanFileName = `barcode-${input.value.replace(/[^a-zA-Z0-9]/g, "") || "draft"}.png`;
-
-      if (currentDownloadUrl) {
-        // Silently grab the image bytes as a data blob
-        fetch(currentDownloadUrl)
-          .then((response) => {
-            if (!response.ok) throw new Error("Image download failed");
-            return response.blob();
-          })
-          .then((blob) => {
-            // Transform the byte array into a clickable data string
-            const localUrl = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = localUrl;
-            link.download = cleanFileName;
-            document.body.appendChild(link);
-            link.click();
-            
-            // Clean up the memory references immediately
-            document.body.removeChild(link);
-            URL.revokeObjectURL(localUrl);
-          })
-          .catch((err) => {
-            // Backup fallback plan if browser configuration blocks dynamic background fetches
-            window.open(currentDownloadUrl, "_blank", "noopener");
-          });
-        return;
-      }
-
-      // Handle standard local canvas downloads
       const link = document.createElement("a");
       link.download = cleanFileName;
       link.href = canvas.toDataURL("image/png");
