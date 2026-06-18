@@ -1036,9 +1036,13 @@ header small,
   opacity: 1 !important;
 }
 
-/* This forces images to fit their container and prevents them from breaking the page */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+/* Ironclad responsive boundaries for the self-hosted canvas engine */
+#barcode-canvas {
+  max-width: 100% !important;
+  max-height: 250px !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+  margin: 0 auto !important;
+  object-fit: contain !important;
 }
