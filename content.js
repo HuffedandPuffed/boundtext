@@ -6,7 +6,7 @@
 
 window.HP_CONTENT = {
   company: {
-    name: "Bound Text",
+    name: "Bound Text Publishing",
     strapline: "Independent books with craft, nerve, and a quiet spark of mischief.",
     intro:
       "A small press for sharp-edged fiction, practical books, and word search books. We keep the list focused, the voice human, and the door open for curious readers.",
