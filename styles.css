@@ -760,7 +760,17 @@ textarea {
   background: var(--white);
 }
 
-.barcode-preview canvas[hidden],
+/* Container rules to keep the high-res preview neat and responsive */
+#barcode-canvas {
+  max-width: 100%;
+  max-height: 260px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
 .barcode-preview [hidden] {
   display: none !important;
 }
