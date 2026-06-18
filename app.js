@@ -786,7 +786,7 @@
     document.querySelector("#export-notes").addEventListener("click", () => {
       const blob = new Blob([document.querySelector("#private-notes").value], { type: "text/plain" });
       const link = document.createElement("a");
-      link.download = "huffed-puffed-private-notes.txt";
+      link.download = "bound-text-notes.txt";
       link.href = URL.createObjectURL(blob);
       link.click();
       URL.revokeObjectURL(link.href);
