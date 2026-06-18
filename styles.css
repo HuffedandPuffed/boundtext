@@ -1038,11 +1038,11 @@ header small,
 
 /* Ironclad responsive boundaries for the self-hosted canvas engine */
 #barcode-canvas {
-  max-width: 100% !important;
-  max-height: 250px !important;
-  width: auto !important;
-  height: auto !important;
   display: block !important;
+  width: 100% !important;
+  max-width: 300px !important;
+  height: auto !important;
   margin: 0 auto !important;
   object-fit: contain !important;
+  border-radius: 6px !important;
 }
