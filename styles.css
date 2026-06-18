@@ -127,10 +127,10 @@ svg {
   display: block;
   color: #ffffff !important;
   font-family: var(--heading-font) !important;
-  font-size: 0.85rem !important;
+  font-size: 1.15rem !important; /* Changed from 0.85rem to match 'Bound Text' */
   letter-spacing: 0.05em;
   text-transform: capitalize !important;
-  font-weight: 500 !important;
+  font-weight: 700 !important;   /* Increased to 700 to match the bold weight */
 }
 
 .site-menu {
