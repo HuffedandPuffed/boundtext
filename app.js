@@ -291,7 +291,7 @@
           <label>
             <span>Barcode or QR format</span>
             <select id="barcode-type">
-              <option value="isbn13">ISBN-13 / Bookland EAN</option>
+              <option value="isbn">ISBN-13 / Bookland EAN</option>
               <option value="issn">ISSN to EAN-13</option>
               <option value="ismn">ISMN / Music EAN</option>
               <option value="ean13">EAN-13</option>
@@ -352,7 +352,6 @@
       const selectedType = type.value;
       const rawValue = input.value.trim();
 
-      // Clear layout canvas with uniform white background color
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#fffdf7";
@@ -364,12 +363,13 @@
       }
 
       try {
-        // Direct native invocation using the local script assembly bundle
+        const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
+
         window.bwipjs.toCanvas(canvas, {
           bcid: selectedType,
           text: rawValue,
           scale: 3,
-          includetext: true,
+          includetext: !isMatrix2D,
           textxalign: "center",
           backgroundcolor: "fffdf7"
         });
@@ -389,7 +389,6 @@
     type.addEventListener("change", generate);
     input.addEventListener("input", queueGenerate);
     
-    // Completely native canvas extraction bypassing all security rules
     document.querySelector("#download-barcode").addEventListener("click", () => {
       const cleanFileName = `barcode-${input.value.replace(/[^a-zA-Z0-9]/g, "") || "draft"}.png`;
       const link = document.createElement("a");
