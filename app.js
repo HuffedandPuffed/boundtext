@@ -441,4 +441,82 @@
           <h2>Catalogue notes</h2>
           <p class="quiet">Saved in this browser only. Use a real authenticated backend before storing private files.</p>
         </div>
-        <textarea id="private-notes" rows="12" placeholder="Paste draft notes, cover status, ASINs, or upload reminders here.">${saved
+        <textarea id="private-notes" rows="12" placeholder="Paste draft notes, cover status, ASINs, or upload reminders here.">${saved}</textarea>
+        <div class="split-actions">
+          <button class="button primary" id="save-notes" type="button">Save notes</button>
+          <button class="button secondary" id="export-notes" type="button">Export notes</button>
+        </div>
+      </div>
+    `;
+    document.querySelector("#save-notes").addEventListener("click", () => {
+      localStorage.setItem("hp-private-notes", document.querySelector("#private-notes").value);
+    });
+    document.querySelector("#export-notes").addEventListener("click", () => {
+      const blob = new Blob([document.querySelector("#private-notes").value], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.download = "bound-text-notes.txt";
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+  }
+
+  function renderPaymentPlaceholder() {
+    main.innerHTML = `
+      <section class="page-hero">
+        <p class="eyebrow">Direct sales</p>
+        <h1>Payment page placeholder.</h1>
+        <p>${data.company.directSalesNote}</p>
+        <div class="payment-options">
+          <article><h2>Stripe Payment Links</h2><p>Best for a simple card-payment link per book or bundle.</p></article>
+          <article><h2>PayPal Checkout</h2><p>Fast to start, familiar to buyers, and useful for one-off signed-copy requests.</p></article>
+          <article><h2>Shopify Starter</h2><p>Best if direct sales become a recurring catalogue with inventory and shipping rules.</p></article>
+        </div>
+      </section>
+    `;
+  }
+
+  function wireGlobalControls() {
+    document.querySelectorAll("[data-marketplace]").forEach((select) => {
+      select.addEventListener("change", (event) => {
+        localStorage.setItem(marketKey, event.target.value);
+        render();
+      });
+    });
+    document.querySelectorAll("[data-clear-marketplace]").forEach((button) => {
+      button.addEventListener("click", () => {
+        localStorage.removeItem(marketKey);
+        render();
+      });
+    });
+  }
+
+  function render() {
+    const { route, params } = getRouteParts();
+    document.querySelectorAll(".site-menu a").forEach((link) => {
+      link.toggleAttribute("aria-current", link.getAttribute("href") === route);
+    });
+    menu.classList.remove("open");
+    menuButton.setAttribute("aria-expanded", "false");
+
+    if (route === "#authors") renderAuthors();
+    else if (route === "#books") renderBooks(params.get("author") || "");
+    else if (route === "#barcode") renderBarcode();
+    else if (route === "#barcode-pro") renderBarcode();
+    else if (route === "#private") renderPrivate();
+    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
+    else renderHome();
+
+    wireGlobalControls();
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  menuButton.addEventListener("click", () => {
+    const expanded = menuButton.getAttribute("aria-expanded") === "true";
+    menuButton.setAttribute("aria-expanded", String(!expanded));
+    menu.classList.toggle("open", !expanded);
+  });
+
+  window.addEventListener("hashchange", render);
+  render();
+})();
