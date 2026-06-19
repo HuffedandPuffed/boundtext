@@ -350,7 +350,7 @@
     function generate(event) {
       if (event) event.preventDefault();
       const selectedType = type.value;
-      const rawValue = input.value.trim();
+      let rawValue = input.value.trim();
 
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -362,11 +362,20 @@
         return;
       }
 
+      // Automatically sanitize dashes and spaces for standard retail/book numbers
+      const isNumericType = ["isbn", "issn", "ismn", "ean13", "ean8", "upca", "upce", "itf14", "interleaved2of5"].includes(selectedType);
+      if (isNumericType) {
+        rawValue = rawValue.replace(/[- ]/g, "");
+      }
+
       try {
         const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
+        
+        // Use clean EAN-13 rules under the hood for clean book presentation blocks
+        const targetBcid = selectedType === "isbn" ? "ean13" : selectedType;
 
         window.bwipjs.toCanvas(canvas, {
-          bcid: selectedType,
+          bcid: targetBcid,
           text: rawValue,
           scale: 3,
           includetext: !isMatrix2D,
@@ -478,38 +487,4 @@
     });
     document.querySelectorAll("[data-clear-marketplace]").forEach((button) => {
       button.addEventListener("click", () => {
-        localStorage.removeItem(marketKey);
-        render();
-      });
-    });
-  }
-
-  function render() {
-    const { route, params } = getRouteParts();
-    document.querySelectorAll(".site-menu a").forEach((link) => {
-      link.toggleAttribute("aria-current", link.getAttribute("href") === route);
-    });
-    menu.classList.remove("open");
-    menuButton.setAttribute("aria-expanded", "false");
-
-    if (route === "#authors") renderAuthors();
-    else if (route === "#books") renderBooks(params.get("author") || "");
-    else if (route === "#barcode") renderBarcode();
-    else if (route === "#barcode-pro") renderBarcode();
-    else if (route === "#private") renderPrivate();
-    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
-    else renderHome();
-
-    wireGlobalControls();
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }
-
-  menuButton.addEventListener("click", () => {
-    const expanded = menuButton.getAttribute("aria-expanded") === "true";
-    menuButton.setAttribute("aria-expanded", String(!expanded));
-    menu.classList.toggle("open", !expanded);
-  });
-
-  window.addEventListener("hashchange", render);
-  render();
-})();
+        localStorage.removeItem(marketKey
