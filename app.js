@@ -372,10 +372,8 @@
       try {
         const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
         
-        let targetBcid = selectedType;
-        if (selectedType === "isbn") targetBcid = "ean13";
-        if (selectedType === "interleaved2of5") targetBcid = "int25";
-        if (selectedType === "azteccode") targetBcid = "aztec";
+        // Direct EAN-13 mapping for clean book blocks, leaving everything else native
+        const targetBcid = selectedType === "isbn" ? "ean13" : selectedType;
 
         window.bwipjs.toCanvas(canvas, {
           bcid: targetBcid,
@@ -383,8 +381,10 @@
           scale: 3,
           includetext: !isMatrix2D,
           textxalign: "center",
-          backgroundcolor: "ffffff" // Strict pure white parameters for Amazon KDP laser target readers
+          backgroundcolor: "ffffff" 
         });
+        message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
+      });
         message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
       } catch (e) {
         message.textContent = "Invalid characters or data length configuration rules for the selected format standard.";
