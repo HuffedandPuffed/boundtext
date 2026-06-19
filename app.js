@@ -363,6 +363,7 @@
         return;
       }
 
+      // Automatically strip formatting symbols for numerical formats
       const isNumericType = ["isbn", "issn", "ismn", "ean13", "ean8", "upca", "upce", "itf14", "interleaved2of5"].includes(selectedType);
       if (isNumericType) {
         rawValue = rawValue.replace(/[- ]/g, "");
@@ -370,10 +371,29 @@
 
       try {
         const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
-        
         let targetBcid = selectedType;
-        // Keep only the valid ISBN to EAN-13 mapping
-        if (selectedType === "isbn") targetBcid = "ean13";
+
+        // --- SMART PUBLISHING FORMAT NORMALIZER ---
+        // Converts specialty book codes to clean EAN-13s to prevent engine crashes or layout distortions
+        if (selectedType === "isbn") {
+          if (rawValue.length === 10) {
+            const base12 = "978" + rawValue.substring(0, 9);
+            let sum = 0;
+            for (let i = 0; i < 12; i++) sum += parseInt(base12[i], 10) * (i % 2 === 0 ? 1 : 3);
+            rawValue = base12 + ((10 - (sum % 10)) % 10);
+          }
+          targetBcid = "ean13";
+        } else if (selectedType === "issn") {
+          if (rawValue.length === 7 || rawValue.length === 8) {
+            const base12 = "977" + rawValue.substring(0, 7) + "00";
+            let sum = 0;
+            for (let i = 0; i < 12; i++) sum += parseInt(base12[i], 10) * (i % 2 === 0 ? 1 : 3);
+            rawValue = base12 + ((10 - (sum % 10)) % 10);
+          }
+          targetBcid = "ean13";
+        } else if (selectedType === "ismn") {
+          targetBcid = "ean13";
+        }
 
         window.bwipjs.toCanvas(canvas, {
           bcid: targetBcid,
