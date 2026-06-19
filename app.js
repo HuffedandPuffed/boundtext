@@ -487,4 +487,38 @@
     });
     document.querySelectorAll("[data-clear-marketplace]").forEach((button) => {
       button.addEventListener("click", () => {
-        localStorage.removeItem(marketKey
+        localStorage.removeItem(marketKey);
+        render();
+      });
+    });
+  }
+
+  function render() {
+    const { route, params } = getRouteParts();
+    document.querySelectorAll(".site-menu a").forEach((link) => {
+      link.toggleAttribute("aria-current", link.getAttribute("href") === route);
+    });
+    menu.classList.remove("open");
+    menuButton.setAttribute("aria-expanded", "false");
+
+    if (route === "#authors") renderAuthors();
+    else if (route === "#books") renderBooks(params.get("author") || "");
+    else if (route === "#barcode") renderBarcode();
+    else if (route === "#barcode-pro") renderBarcode();
+    else if (route === "#private") renderPrivate();
+    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
+    else renderHome();
+
+    wireGlobalControls();
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  menuButton.addEventListener("click", () => {
+    const expanded = menuButton.getAttribute("aria-expanded") === "true";
+    menuButton.setAttribute("aria-expanded", String(!expanded));
+    menu.classList.toggle("open", !expanded);
+  });
+
+  window.addEventListener("hashchange", render);
+  render();
+})();
