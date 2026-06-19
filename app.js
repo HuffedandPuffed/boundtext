@@ -328,7 +328,7 @@
               <dt>UPC-A</dt><dd>Enter 11 digits to add the check digit, or a valid 12-digit UPC-A.</dd>
               <dt>UPC-E</dt><dd>Enter 6 compressed digits, or 8 digits including number system and check digit.</dd>
               <dt>Code 128</dt><dd>Any ordinary text, numbers, SKU, batch code, URL, or internal reference.</dd>
-              <dt>Code 39</dt><dd>Uppercase letters, numbers, spaces, and these symbols: - . $ / + %</dd>
+              <dt>Code 39</dt><dd>Uppercase letters, numbers, spaces, and these symbols: - . $ / + %</== "code39">Code 39</option>
               <dt>ITF-14 carton code</dt><dd>Enter 13 digits to add the check digit, or a valid 14-digit GTIN/carton code.</dd>
               <dt>Interleaved 2 of 5</dt><dd>Numbers only, with an even number of digits.</dd>
               <dt>Data Matrix, Aztec Code, PDF417, QR Code</dt><dd>Any useful text such as a URL, ISBN, contact detail, product note, or inventory reference.</dd>
@@ -354,7 +354,9 @@
 
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#fffdf7";
+      
+      // Enforce clean, high-contrast solid white backing base layer for print scanning compliance
+      ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (!rawValue) {
@@ -362,7 +364,6 @@
         return;
       }
 
-      // Automatically sanitize dashes and spaces for standard retail/book numbers
       const isNumericType = ["isbn", "issn", "ismn", "ean13", "ean8", "upca", "upce", "itf14", "interleaved2of5"].includes(selectedType);
       if (isNumericType) {
         rawValue = rawValue.replace(/[- ]/g, "");
@@ -371,8 +372,10 @@
       try {
         const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
         
-        // Use clean EAN-13 rules under the hood for clean book presentation blocks
-        const targetBcid = selectedType === "isbn" ? "ean13" : selectedType;
+        let targetBcid = selectedType;
+        if (selectedType === "isbn") targetBcid = "ean13";
+        if (selectedType === "interleaved2of5") targetBcid = "int25";
+        if (selectedType === "azteccode") targetBcid = "aztec";
 
         window.bwipjs.toCanvas(canvas, {
           bcid: targetBcid,
@@ -380,7 +383,7 @@
           scale: 3,
           includetext: !isMatrix2D,
           textxalign: "center",
-          backgroundcolor: "fffdf7"
+          backgroundcolor: "ffffff" // Strict pure white parameters for Amazon KDP laser target readers
         });
         message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
       } catch (e) {
