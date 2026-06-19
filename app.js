@@ -69,7 +69,7 @@
       .join("");
     return `
       <label class="market-select ${className}">
-        <span>${hasManualOverride ? "Manual marketplace backup" : "Auto-detected Amazon marketplace"}</span>
+        <span>Manual marketplace backup</span>
         <small>${hasManualOverride ? `Customer preference override active: ${currentMarket.label}. Clear it to return to automatic detection.` : `Using ${currentMarket.label} from viewer timezone first, then browser language. Manual choice is only a backup if this is wrong.`}</small>
         <select data-marketplace>${options}</select>
         ${hasManualOverride ? `<button class="text-button" type="button" data-clear-marketplace>Use auto detection</button>` : ""}
@@ -211,7 +211,7 @@
         <div>
           <p class="eyebrow">Bookshop</p>
           <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "Bound Text."}</h1>
-          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace. Colin Bamforth titles also include a direct-purchase placeholder for stock you hold yourself."}</p>
+          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
         </div>
         ${renderMarketplaceSelect("inline")}
       </section>
@@ -271,10 +271,6 @@
     apply();
   }
 
-  function cleanCode(value) {
-    return value.toUpperCase().replace(/[^0-9X]/g, "");
-  }
-
   function renderBarcode() {
     main.innerHTML = `
       <section class="page-hero">
@@ -328,7 +324,7 @@
               <dt>UPC-A</dt><dd>Enter 11 digits to add the check digit, or a valid 12-digit UPC-A.</dd>
               <dt>UPC-E</dt><dd>Enter 6 compressed digits, or 8 digits including number system and check digit.</dd>
               <dt>Code 128</dt><dd>Any ordinary text, numbers, SKU, batch code, URL, or internal reference.</dd>
-              <dt>Code 39</dt><dd>Uppercase letters, numbers, spaces, and these symbols: - . $ / + %</== "code39">Code 39</option>
+              <dt>Code 39</dt><dd>Uppercase letters, numbers, spaces, and these symbols: - . $ / + %</dd>
               <dt>ITF-14 carton code</dt><dd>Enter 13 digits to add the check digit, or a valid 14-digit GTIN/carton code.</dd>
               <dt>Interleaved 2 of 5</dt><dd>Numbers only, with an even number of digits.</dd>
               <dt>Data Matrix, Aztec Code, PDF417, QR Code</dt><dd>Any useful text such as a URL, ISBN, contact detail, product note, or inventory reference.</dd>
@@ -355,7 +351,6 @@
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Enforce clean, high-contrast solid white backing base layer for print scanning compliance
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -372,8 +367,10 @@
       try {
         const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
         
-        // Direct EAN-13 mapping for clean book blocks, leaving everything else native
-        const targetBcid = selectedType === "isbn" ? "ean13" : selectedType;
+        let targetBcid = selectedType;
+        if (selectedType === "isbn") targetBcid = "ean13";
+        if (selectedType === "interleaved2of5") targetBcid = "int25";
+        if (selectedType === "azteccode") targetBcid = "aztec";
 
         window.bwipjs.toCanvas(canvas, {
           bcid: targetBcid,
@@ -383,8 +380,6 @@
           textxalign: "center",
           backgroundcolor: "ffffff" 
         });
-        message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
-      });
         message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
       } catch (e) {
         message.textContent = "Invalid characters or data length configuration rules for the selected format standard.";
@@ -446,82 +441,4 @@
           <h2>Catalogue notes</h2>
           <p class="quiet">Saved in this browser only. Use a real authenticated backend before storing private files.</p>
         </div>
-        <textarea id="private-notes" rows="12" placeholder="Paste draft notes, cover status, ASINs, or upload reminders here.">${saved}</textarea>
-        <div class="split-actions">
-          <button class="button primary" id="save-notes" type="button">Save notes</button>
-          <button class="button secondary" id="export-notes" type="button">Export notes</button>
-        </div>
-      </div>
-    `;
-    document.querySelector("#save-notes").addEventListener("click", () => {
-      localStorage.setItem("hp-private-notes", document.querySelector("#private-notes").value);
-    });
-    document.querySelector("#export-notes").addEventListener("click", () => {
-      const blob = new Blob([document.querySelector("#private-notes").value], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.download = "bound-text-notes.txt";
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-  }
-
-  function renderPaymentPlaceholder() {
-    main.innerHTML = `
-      <section class="page-hero">
-        <p class="eyebrow">Direct sales</p>
-        <h1>Payment page placeholder.</h1>
-        <p>${data.company.directSalesNote}</p>
-        <div class="payment-options">
-          <article><h2>Stripe Payment Links</h2><p>Best for a simple card-payment link per book or bundle.</p></article>
-          <article><h2>PayPal Checkout</h2><p>Fast to start, familiar to buyers, and useful for one-off signed-copy requests.</p></article>
-          <article><h2>Shopify Starter</h2><p>Best if direct sales become a recurring catalogue with inventory and shipping rules.</p></article>
-        </div>
-      </section>
-    `;
-  }
-
-  function wireGlobalControls() {
-    document.querySelectorAll("[data-marketplace]").forEach((select) => {
-      select.addEventListener("change", (event) => {
-        localStorage.setItem(marketKey, event.target.value);
-        render();
-      });
-    });
-    document.querySelectorAll("[data-clear-marketplace]").forEach((button) => {
-      button.addEventListener("click", () => {
-        localStorage.removeItem(marketKey);
-        render();
-      });
-    });
-  }
-
-  function render() {
-    const { route, params } = getRouteParts();
-    document.querySelectorAll(".site-menu a").forEach((link) => {
-      link.toggleAttribute("aria-current", link.getAttribute("href") === route);
-    });
-    menu.classList.remove("open");
-    menuButton.setAttribute("aria-expanded", "false");
-
-    if (route === "#authors") renderAuthors();
-    else if (route === "#books") renderBooks(params.get("author") || "");
-    else if (route === "#barcode") renderBarcode();
-    else if (route === "#barcode-pro") renderBarcode();
-    else if (route === "#private") renderPrivate();
-    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
-    else renderHome();
-
-    wireGlobalControls();
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }
-
-  menuButton.addEventListener("click", () => {
-    const expanded = menuButton.getAttribute("aria-expanded") === "true";
-    menuButton.setAttribute("aria-expanded", String(!expanded));
-    menu.classList.toggle("open", !expanded);
-  });
-
-  window.addEventListener("hashchange", render);
-  render();
-})();
+        <textarea id="private-notes" rows="12" placeholder="Paste draft notes, cover status, ASINs, or upload reminders here.">${saved
