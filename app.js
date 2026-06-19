@@ -69,7 +69,7 @@
       .join("");
     return `
       <label class="market-select ${className}">
-        <span>Manual marketplace backup</span>
+        <span>${hasManualOverride ? "Manual marketplace backup" : "Auto-detected Amazon marketplace"}</span>
         <small>${hasManualOverride ? `Customer preference override active: ${currentMarket.label}. Clear it to return to automatic detection.` : `Using ${currentMarket.label} from viewer timezone first, then browser language. Manual choice is only a backup if this is wrong.`}</small>
         <select data-marketplace>${options}</select>
         ${hasManualOverride ? `<button class="text-button" type="button" data-clear-marketplace>Use auto detection</button>` : ""}
@@ -211,7 +211,7 @@
         <div>
           <p class="eyebrow">Bookshop</p>
           <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "Bound Text."}</h1>
-          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
+          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace. Colin Bamforth titles also include a direct-purchase placeholder for stock you hold yourself."}</p>
         </div>
         ${renderMarketplaceSelect("inline")}
       </section>
@@ -271,6 +271,10 @@
     apply();
   }
 
+  function cleanCode(value) {
+    return value.toUpperCase().replace(/[^0-9X]/g, "");
+  }
+
   function renderBarcode() {
     main.innerHTML = `
       <section class="page-hero">
@@ -288,235 +292,4 @@
             <span>Barcode or QR format</span>
             <select id="barcode-type">
               <option value="isbn">ISBN-13 / Bookland EAN</option>
-              <option value="issn">ISSN to EAN-13</option>
-              <option value="ismn">ISMN / Music EAN</option>
-              <option value="ean13">EAN-13</option>
-              <option value="ean8">EAN-8</option>
-              <option value="upca">UPC-A</option>
-              <option value="upce">UPC-E</option>
-              <option value="code128">Code 128</option>
-              <option value="code39">Code 39</option>
-              <option value="itf14">ITF-14 carton code</option>
-              <option value="interleaved2of5">Interleaved 2 of 5</option>
-              <option value="datamatrix">Data Matrix</option>
-              <option value="azteccode">Aztec Code</option>
-              <option value="pdf417">PDF417</option>
-              <option value="qrcode">QR Code</option>
-            </select>
-          </label>
-          <label>
-            <span>Value</span>
-            <input id="barcode-input" autocomplete="off" value="978000000000">
-          </label>
-          <div class="split-actions">
-            <button class="button primary" type="submit">Generate</button>
-            <button class="button secondary" id="download-barcode" type="button">Download PNG</button>
-          </div>
-          <p class="quiet" id="barcode-message"></p>
-          <details class="format-help">
-            <summary>Accepted values for each format</summary>
-            <dl>
-              <dt>ISBN-13 / Bookland EAN</dt><dd>ISBN-10, 12 ISBN/EAN digits, or a valid 13-digit ISBN beginning 978 or 979.</dd>
-              <dt>ISSN to EAN-13</dt><dd>Enter the 7 or 8 ISSN digits. The site converts it to a 977-prefixed EAN-13.</dd>
-              <dt>ISMN / Music EAN</dt><dd>Enter 12 digits beginning 9790, or a valid 13-digit ISMN EAN beginning 9790.</dd>
-              <dt>EAN-13</dt><dd>Enter 12 digits to add the check digit, or a valid 13-digit EAN.</dd>
-              <dt>EAN-8</dt><dd>Enter 7 digits to add the check digit, or a valid 8-digit EAN-8.</dd>
-              <dt>UPC-A</dt><dd>Enter 11 digits to add the check digit, or a valid 12-digit UPC-A.</dd>
-              <dt>UPC-E</dt><dd>Enter 6 compressed digits, or 8 digits including number system and check digit.</dd>
-              <dt>Code 128</dt><dd>Any ordinary text, numbers, SKU, batch code, URL, or internal reference.</dd>
-              <dt>Code 39</dt><dd>Uppercase letters, numbers, spaces, and these symbols: - . $ / + %</dd>
-              <dt>ITF-14 carton code</dt><dd>Enter 13 digits to add the check digit, or a valid 14-digit GTIN/carton code.</dd>
-              <dt>Interleaved 2 of 5</dt><dd>Numbers only, with an even number of digits.</dd>
-              <dt>Data Matrix, Aztec Code, PDF417, QR Code</dt><dd>Any useful text such as a URL, ISBN, contact detail, product note, or inventory reference.</dd>
-            </dl>
-          </details>
-        </form>
-        <div class="barcode-preview">
-          <canvas id="barcode-canvas" width="720" height="320" aria-label="Barcode preview"></canvas>
-        </div>
-      </section>
-    `;
-    const form = document.querySelector("#barcode-form");
-    const type = document.querySelector("#barcode-type");
-    const input = document.querySelector("#barcode-input");
-    const message = document.querySelector("#barcode-message");
-    const canvas = document.querySelector("#barcode-canvas");
-    let autoGenerateTimer = 0;
-
-    function generate(event) {
-      if (event) event.preventDefault();
-      const selectedType = type.value;
-      let rawValue = input.value.trim();
-
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (!rawValue) {
-        message.textContent = "Enter a value before generating.";
-        return;
-      }
-
-      const isNumericType = ["isbn", "issn", "ismn", "ean13", "ean8", "upca", "upce", "itf14", "interleaved2of5"].includes(selectedType);
-      if (isNumericType) {
-        rawValue = rawValue.replace(/[- ]/g, "");
-      }
-
-      try {
-        const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
-        
-        let targetBcid = selectedType;
-        if (selectedType === "isbn") targetBcid = "ean13";
-        if (selectedType === "interleaved2of5") targetBcid = "int25";
-        if (selectedType === "azteccode") targetBcid = "aztec";
-
-        window.bwipjs.toCanvas(canvas, {
-          bcid: targetBcid,
-          text: rawValue,
-          scale: 3,
-          includetext: !isMatrix2D,
-          textxalign: "center",
-          backgroundcolor: "ffffff" 
-        });
-        message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
-      } catch (e) {
-        message.textContent = "Invalid characters or data length configuration rules for the selected format standard.";
-      }
-    }
-
-    form.addEventListener("submit", generate);
-    
-    function queueGenerate() {
-      window.clearTimeout(autoGenerateTimer);
-      autoGenerateTimer = window.setTimeout(() => generate(), 250);
-    }
-
-    type.addEventListener("change", generate);
-    input.addEventListener("input", queueGenerate);
-    
-    document.querySelector("#download-barcode").addEventListener("click", () => {
-      const cleanFileName = `barcode-${input.value.replace(/[^a-zA-Z0-9]/g, "") || "draft"}.png`;
-      const link = document.createElement("a");
-      link.download = cleanFileName;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
-    
-    generate();
-  }
-
-  function renderPrivate() {
-    main.innerHTML = `
-      <section class="page-hero private-hero">
-        <p class="eyebrow">Private workspace</p>
-        <h1>Draft file-management page.</h1>
-        <p>${data.privatePage.warning}</p>
-      </section>
-      <section class="private-gate" id="private-gate">
-        <form class="tool-panel" id="private-login">
-          <label>
-            <span>Password</span>
-            <input id="private-password" type="password" autocomplete="current-password" placeholder="Prototype password">
-          </label>
-          <button class="button primary" type="submit">Open private page</button>
-          <p class="quiet">For testing, edit <code>privatePage.demoPasswords</code> in <code>content.js</code>. This is still a client-side prototype, not real security.</p>
-        </form>
-      </section>
-    `;
-    document.querySelector("#private-login").addEventListener("submit", (event) => {
-      event.preventDefault();
-      const password = document.querySelector("#private-password").value;
-      const allowed = data.privatePage.demoPasswords || [data.privatePage.demoPassword];
-      if (allowed.includes(password)) renderPrivateWorkspace();
-    });
-  }
-
-  function renderPrivateWorkspace() {
-    const saved = localStorage.getItem("hp-private-notes") || "";
-    document.querySelector("#private-gate").innerHTML = `
-      <div class="private-workspace">
-        <div>
-          <h2>Catalogue notes</h2>
-          <p class="quiet">Saved in this browser only. Use a real authenticated backend before storing private files.</p>
-        </div>
-        <textarea id="private-notes" rows="12" placeholder="Paste draft notes, cover status, ASINs, or upload reminders here.">${saved}</textarea>
-        <div class="split-actions">
-          <button class="button primary" id="save-notes" type="button">Save notes</button>
-          <button class="button secondary" id="export-notes" type="button">Export notes</button>
-        </div>
-      </div>
-    `;
-    document.querySelector("#save-notes").addEventListener("click", () => {
-      localStorage.setItem("hp-private-notes", document.querySelector("#private-notes").value);
-    });
-    document.querySelector("#export-notes").addEventListener("click", () => {
-      const blob = new Blob([document.querySelector("#private-notes").value], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.download = "bound-text-notes.txt";
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-  }
-
-  function renderPaymentPlaceholder() {
-    main.innerHTML = `
-      <section class="page-hero">
-        <p class="eyebrow">Direct sales</p>
-        <h1>Payment page placeholder.</h1>
-        <p>${data.company.directSalesNote}</p>
-        <div class="payment-options">
-          <article><h2>Stripe Payment Links</h2><p>Best for a simple card-payment link per book or bundle.</p></article>
-          <article><h2>PayPal Checkout</h2><p>Fast to start, familiar to buyers, and useful for one-off signed-copy requests.</p></article>
-          <article><h2>Shopify Starter</h2><p>Best if direct sales become a recurring catalogue with inventory and shipping rules.</p></article>
-        </div>
-      </section>
-    `;
-  }
-
-  function wireGlobalControls() {
-    document.querySelectorAll("[data-marketplace]").forEach((select) => {
-      select.addEventListener("change", (event) => {
-        localStorage.setItem(marketKey, event.target.value);
-        render();
-      });
-    });
-    document.querySelectorAll("[data-clear-marketplace]").forEach((button) => {
-      button.addEventListener("click", () => {
-        localStorage.removeItem(marketKey);
-        render();
-      });
-    });
-  }
-
-  function render() {
-    const { route, params } = getRouteParts();
-    document.querySelectorAll(".site-menu a").forEach((link) => {
-      link.toggleAttribute("aria-current", link.getAttribute("href") === route);
-    });
-    menu.classList.remove("open");
-    menuButton.setAttribute("aria-expanded", "false");
-
-    if (route === "#authors") renderAuthors();
-    else if (route === "#books") renderBooks(params.get("author") || "");
-    else if (route === "#barcode") renderBarcode();
-    else if (route === "#barcode-pro") renderBarcode();
-    else if (route === "#private") renderPrivate();
-    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
-    else renderHome();
-
-    wireGlobalControls();
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }
-
-  menuButton.addEventListener("click", () => {
-    const expanded = menuButton.getAttribute("aria-expanded") === "true";
-    menuButton.setAttribute("aria-expanded", String(!expanded));
-    menu.classList.toggle("open", !expanded);
-  });
-
-  window.addEventListener("hashchange", render);
-  render();
-})();
+              <option value="issn">ISSN to EAN-13
