@@ -57,7 +57,7 @@ window.HP_CONTENT = {
   ],
 
   directSales: {
-    enabled: true,
+    enabled: false,
     paymentPageUrl: "#payment-placeholder",
     label: "Buy direct from Colin",
     appliesToAuthor: "Colin Bamforth"
@@ -81,7 +81,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0FD8C7P1H",
       category: "Fictional biography",
-      direct: true,
+      direct: false,
       coverImage: "assets/covers/shift-change.webp",
       description: "Set in the fictional city of Thamesreach and written with lived emotional realism, Shift Change follows paramedic Naomi Kerslake through the brutal, beautiful, and relentlessly human work behind the uniform. This revised second edition expands the scenes and deepens the quiet trauma, courage, burnout, and resilience that remain when the sirens go silent."
     },
