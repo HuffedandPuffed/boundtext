@@ -196,7 +196,7 @@ main {
       rgba(17, 15, 13, 0.4) 75%,    
       transparent 100%              
     ),
-    url("assets/hero-publishing.png") center right / cover no-repeat;
+    url("assets/hero-publishing.webp") center right / cover no-repeat; /* Updated to .webp */
 }
 
 .hero-copy {
@@ -881,10 +881,10 @@ textarea {
     min-height: 86vh;
   }
 
-  .hero-media {
+ .hero-media {
     background:
       linear-gradient(180deg, rgba(20, 20, 20, 0.96) 0%, rgba(20, 20, 20, 0.82) 48%, rgba(20, 20, 20, 0.42) 100%),
-      url("assets/hero-publishing.png") center bottom / cover no-repeat;
+      url("assets/hero-publishing.webp") center bottom / cover no-repeat; /* Updated to .webp */
   }
 
   h1 {
