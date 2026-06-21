@@ -6,7 +6,10 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com; style-src 'self'; img-src 'self' data: https://pagead2.googlesyndication.com; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
     <title>Free Barcode Maker & QR Code Generator | BoundText</title>
     <meta name="description" content="Bound Text Publishing: independent books with craft, nerve, and a quiet spark of mischief. Featuring a free online barcode maker and QR code generator.">
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=5">
+    
+    <!-- Preload critical WebP hero background layout -->
+    <link rel="preload" href="assets/hero-publishing.webp" as="image">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6010064614725231" crossorigin="anonymous"></script>
   </head>
   <body>
@@ -14,7 +17,8 @@
     <header class="site-header">
       <nav class="nav-shell" aria-label="Main navigation">
         <a class="brand" href="#home" aria-label="Bound Text Publishing home">
-          <span class="brand-mark"><img src="assets/bt logo.png" alt=""></span>
+          <!-- Updated BT Logo WebP file path -->
+          <span class="brand-mark"><img src="assets/bt logo tiny.webp" width="107" height="107" alt="Bound Text Logo"></span>
           <span>
             <strong>Bound Text</strong>
             <small>Publishing</small>
@@ -33,9 +37,8 @@
       </nav>
     </header>
 
-    <main id="main">
-      <!-- GOOGLE ADSENSE CRAWLER FALLBACK TEXT -->
-      <!-- This ensures bots immediately see rich content before the JavaScript engine takes over -->
+    <!-- Min-height acts as a visual anchor preventing footer-upward layout shifts -->
+    <main id="main" style="min-height: 80vh;">
       <section class="section">
         <h1>Bound Text Publishing</h1>
         <p>Independent publishing for distinctive stories, useful guides, and curious readers. Small press. Human voice. Useful sparks.</p>
@@ -69,8 +72,10 @@
     <template id="icon-arrow">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"></path></svg>
     </template>
-    <script src="bwip-js.min.js?v=1"></script>
-    <script src="content.js"></script>
-    <script src="app.js?v=4"></script>
+    
+    <!-- Defer non-critical execution to let DOM tree render smoothly first -->
+    <script src="bwip-js.min.js?v=1" defer></script>
+    <script src="content.js" defer></script>
+    <script src="app.js?v=5" defer></script>
   </body>
 </html>
