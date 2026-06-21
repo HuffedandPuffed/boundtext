@@ -1046,3 +1046,28 @@ header small,
   object-fit: contain !important;
   border-radius: 6px !important;
 }
+/* ==========================================================================
+   PERFORMANCE & CLS OPTIMIZATIONS
+   ========================================================================== */
+
+/* Explicit dimension guidelines to prevent Layout Shifts (CLS) */
+.hero-media {
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.cover-image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 239 / 360;
+  object-fit: cover;
+  display: block;
+}
+
+.brand-mark img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
