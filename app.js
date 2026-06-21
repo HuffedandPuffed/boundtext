@@ -81,7 +81,7 @@
     if (book.coverImage) {
       return `
         <figure class="cover-image">
-          <img src="${book.coverImage}" alt="${book.title} cover">
+          <img src="${book.coverImage}" alt="Cover art for ${book.title}">
         </figure>
       `;
     }
@@ -138,7 +138,7 @@
       <section class="hero">
         <div class="hero-media" role="img" aria-label="Books and publishing desk"></div>
         <div class="hero-copy">
-          <img class="hero-logo" src="assets/bt logo tiny.webp" alt="Bound text logo">
+          <img class="hero-logo" src="assets/bt logo tiny.webp" alt="Bound Text Publishing Logo">
           <p class="eyebrow">Small press. Human voice. Useful sparks.</p>
           <h1>${data.company.name}</h1>
           <p>${data.company.intro}</p>
@@ -182,7 +182,7 @@
               <article class="author-panel" id="${author.id}">
                <div class="author-portrait">
   ${author.image 
-    ? `<img src="${author.image}" alt="${author.name}">` 
+    ? `<img src="${author.image}" alt="Portrait of ${author.name}">` 
     : `<span>${author.initials}</span>`
   }
 </div>
