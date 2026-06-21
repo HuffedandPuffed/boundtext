@@ -10,7 +10,7 @@ window.HP_CONTENT = {
     strapline: "Independent books with craft, nerve, and a quiet spark of mischief.",
     intro:
       "A small press for sharp-edged fiction, practical books, and word search books. We keep the list focused, the voice human, and the door open for curious readers.",
-    contactEmail: "hello@example.com",
+    contactEmail: "colin@boundtext.com",
     directSalesNote:
       "Direct purchase links are placeholders until a payment page is chosen. Stripe Payment Links, PayPal checkout, or Shopify Starter are good low-maintenance options."
   },
