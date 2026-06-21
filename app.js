@@ -173,7 +173,7 @@
       <section class="page-hero">
         <p class="eyebrow">Authors</p>
         <h1>Three voices, one compact publishing house.</h1>
-        <p>These biographies are polished placeholders. Replace them in <code>content.js</code> when final author details and photos are ready.</p>
+        <p>Meet the minds behind our sharp-edged fiction, practical nonfiction, and engaging puzzle books.</p>
       </section>
       <section class="authors-list">
         ${data.authors
