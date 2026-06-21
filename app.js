@@ -168,6 +168,54 @@
     `;
   }
 
+  function renderAbout() {
+    main.innerHTML = `
+      <section class="page-hero">
+        <p class="eyebrow">About Us</p>
+        <h1>${data.company.name}</h1>
+        <p>${data.company.intro}</p>
+      </section>
+      <section class="section">
+        <div class="tool-panel" style="max-width: 800px;">
+          <h2>Our Mission</h2>
+          <p class="subtitle">${data.company.strapline}</p>
+          <p>We are an independent publisher committed to delivering high-quality, character-led fiction, practical nonfiction, and engaging puzzle books directly to curious readers worldwide. We believe in keeping the list focused, the voice human, and the door open for compelling new ideas.</p>
+          <br>
+          <a class="button primary" href="#authors">Meet our authors ${iconArrow()}</a>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderContact() {
+    main.innerHTML = `
+      <section class="page-hero">
+        <p class="eyebrow">Contact Us</p>
+        <h1>Get in touch.</h1>
+        <p>We would love to hear from you. Whether you have a question about our books, need support with an order, or just want to say hello, drop us an email.</p>
+      </section>
+      <section class="section">
+        <div class="tool-panel" style="max-width: 600px;">
+          <h2>Email Us</h2>
+          <p>For all inquiries, support, and professional contact, please reach out to our primary inbox.</p>
+          <br>
+          <div class="split-actions">
+            <a class="button primary" href="mailto:${data.company.contactEmail}">Open Mail App</a>
+            <button class="button secondary" id="copy-email" type="button">Copy Email Address</button>
+          </div>
+          <p class="quiet" id="copy-status" style="margin-top: 10px; font-weight: bold;"></p>
+          <p class="quiet" style="margin-top: 20px;">Or email us directly at: <strong>${data.company.contactEmail}</strong></p>
+        </div>
+      </section>
+    `;
+
+    document.querySelector("#copy-email").addEventListener("click", () => {
+      navigator.clipboard.writeText(data.company.contactEmail);
+      document.querySelector("#copy-status").textContent = "Email copied to clipboard!";
+      setTimeout(() => document.querySelector("#copy-status").textContent = "", 3000);
+    });
+  }
+
   function renderAuthors() {
     main.innerHTML = `
       <section class="page-hero">
@@ -211,7 +259,7 @@
         <div>
           <p class="eyebrow">Bookshop</p>
           <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "Bound Text."}</h1>
-          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace. Colin Bamforth titles also include a direct-purchase placeholder for stock you hold yourself."}</p>
+          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
         </div>
         ${renderMarketplaceSelect("inline")}
       </section>
@@ -363,7 +411,6 @@
         return;
       }
 
-      // Automatically strip formatting symbols for numerical formats
       const isNumericType = ["isbn", "issn", "ismn", "ean13", "ean8", "upca", "upce", "itf14", "interleaved2of5"].includes(selectedType);
       if (isNumericType) {
         rawValue = rawValue.replace(/[- ]/g, "");
@@ -373,8 +420,6 @@
         const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
         let targetBcid = selectedType;
 
-        // --- SMART PUBLISHING FORMAT NORMALIZER ---
-        // Converts specialty book codes to clean EAN-13s to prevent engine crashes or layout distortions
         if (selectedType === "isbn") {
           if (rawValue.length === 10) {
             const base12 = "978" + rawValue.substring(0, 9);
@@ -430,21 +475,6 @@
     generate();
   }
 
-  function renderPaymentPlaceholder() {
-    main.innerHTML = `
-      <section class="page-hero">
-        <p class="eyebrow">Direct sales</p>
-        <h1>Payment page placeholder.</h1>
-        <p>${data.company.directSalesNote}</p>
-        <div class="payment-options">
-          <article><h2>Stripe Payment Links</h2><p>Best for a simple card-payment link per book or bundle.</p></article>
-          <article><h2>PayPal Checkout</h2><p>Fast to start, familiar to buyers, and useful for one-off signed-copy requests.</p></article>
-          <article><h2>Shopify Starter</h2><p>Best if direct sales become a recurring catalogue with inventory and shipping rules.</p></article>
-        </div>
-      </section>
-    `;
-  }
-
   function wireGlobalControls() {
     document.querySelectorAll("[data-marketplace]").forEach((select) => {
       select.addEventListener("change", (event) => {
@@ -468,11 +498,12 @@
     menu.classList.remove("open");
     menuButton.setAttribute("aria-expanded", "false");
 
-    if (route === "#authors") renderAuthors();
+    if (route === "#about") renderAbout();
+    else if (route === "#contact") renderContact();
+    else if (route === "#authors") renderAuthors();
     else if (route === "#books") renderBooks(params.get("author") || "");
     else if (route === "#barcode") renderBarcode();
     else if (route === "#barcode-pro") renderBarcode();
-    else if (route === "#payment-placeholder") renderPaymentPlaceholder();
     else renderHome();
 
     wireGlobalControls();
