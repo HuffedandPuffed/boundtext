@@ -430,60 +430,6 @@
     generate();
   }
 
-  function renderPrivate() {
-    main.innerHTML = `
-      <section class="page-hero private-hero">
-        <p class="eyebrow">Private workspace</p>
-        <h1>Draft file-management page.</h1>
-        <p>${data.privatePage.warning}</p>
-      </section>
-      <section class="private-gate" id="private-gate">
-        <form class="tool-panel" id="private-login">
-          <label>
-            <span>Password</span>
-            <input id="private-password" type="password" autocomplete="current-password" placeholder="Prototype password">
-          </label>
-          <button class="button primary" type="submit">Open private page</button>
-          <p class="quiet">For testing, edit <code>privatePage.demoPasswords</code> in <code>content.js</code>. This is still a client-side prototype, not real security.</p>
-        </form>
-      </section>
-    `;
-    document.querySelector("#private-login").addEventListener("submit", (event) => {
-      event.preventDefault();
-      const password = document.querySelector("#private-password").value;
-      const allowed = data.privatePage.demoPasswords || [data.privatePage.demoPassword];
-      if (allowed.includes(password)) renderPrivateWorkspace();
-    });
-  }
-
-  function renderPrivateWorkspace() {
-    const saved = localStorage.getItem("hp-private-notes") || "";
-    document.querySelector("#private-gate").innerHTML = `
-      <div class="private-workspace">
-        <div>
-          <h2>Catalogue notes</h2>
-          <p class="quiet">Saved in this browser only. Use a real authenticated backend before storing private files.</p>
-        </div>
-        <textarea id="private-notes" rows="12" placeholder="Paste draft notes, cover status, ASINs, or upload reminders here.">${saved}</textarea>
-        <div class="split-actions">
-          <button class="button primary" id="save-notes" type="button">Save notes</button>
-          <button class="button secondary" id="export-notes" type="button">Export notes</button>
-        </div>
-      </div>
-    `;
-    document.querySelector("#save-notes").addEventListener("click", () => {
-      localStorage.setItem("hp-private-notes", document.querySelector("#private-notes").value);
-    });
-    document.querySelector("#export-notes").addEventListener("click", () => {
-      const blob = new Blob([document.querySelector("#private-notes").value], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.download = "bound-text-notes.txt";
-      link.href = URL.createObjectURL(blob);
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-  }
-
   function renderPaymentPlaceholder() {
     main.innerHTML = `
       <section class="page-hero">
@@ -526,7 +472,6 @@
     else if (route === "#books") renderBooks(params.get("author") || "");
     else if (route === "#barcode") renderBarcode();
     else if (route === "#barcode-pro") renderBarcode();
-    else if (route === "#private") renderPrivate();
     else if (route === "#payment-placeholder") renderPaymentPlaceholder();
     else renderHome();
 
