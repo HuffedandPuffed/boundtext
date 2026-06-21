@@ -138,7 +138,7 @@
       <section class="hero">
         <div class="hero-media" role="img" aria-label="Books and publishing desk"></div>
         <div class="hero-copy">
-          <img class="hero-logo" src="assets/bt logo.png" alt="">
+          <img class="hero-logo" src="assets/bt logo tiny.webp" alt="Bound text logo">
           <p class="eyebrow">Small press. Human voice. Useful sparks.</p>
           <h1>${data.company.name}</h1>
           <p>${data.company.intro}</p>
