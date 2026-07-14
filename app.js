@@ -5,7 +5,6 @@
   const menu = document.querySelector("#site-menu");
   const marketKey = "hp-marketplace";
   const defaultMarket = data.marketplaces.find((market) => market.default) || data.marketplaces[0];
-
   function iconArrow() {
     return document.querySelector("#icon-arrow").innerHTML;
   }
