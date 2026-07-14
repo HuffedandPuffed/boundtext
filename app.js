@@ -329,10 +329,7 @@
         <h1>Barcode and QR code maker.</h1>
         <p>Create ISBN barcodes with genuine checksum validation, publishing codes, retail labels, internal inventory codes, and QR codes for public use.</p>
       </section>
-      <section class="ad-slot" aria-label="Advertisement placeholder">
-        <span>Google AdSense placement</span>
-        <p>Reserved for a responsive ad unit once your AdSense publisher ID is ready.</p>
-      </section>
+    
       <section class="tool-layout">
         <form class="tool-panel" id="barcode-form">
           <label>
