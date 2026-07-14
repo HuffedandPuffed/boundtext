@@ -1071,3 +1071,6 @@ header small,
   height: 40px;
   object-fit: contain;
 }
+#main {
+  min-height: 80vh;
+}
