@@ -193,15 +193,13 @@
         <h1>Get in touch.</h1>
         <p>Whether you are an author looking to submit a manuscript or a reader with a question, we would love to hear from you.</p>
       </section>
-      <section class="section">
-        <div class="tool-panel" style="max-width: 600px; margin: 0 auto; text-align: center;">
-          <h2>Join Our Mailing List & Enquiries</h2>
-          <p>We are currently updating our automated systems. To receive launch updates, private announcements, or to pitch a project, please drop us a direct line at:</p>
-          <br>
-          <p style="font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">
-            <a href="mailto:contact@boundtext.com" style="color: inherit; text-decoration: underline;">contact@boundtext.com</a>
-          </p>
-        </div>
+      <section class="section" style="text-align: center;">
+        <h2>Join Our Mailing List & Enquiries</h2>
+        <p>We are currently updating our automated systems. To receive launch updates, private announcements, or to pitch a project, please drop us a direct line at:</p>
+        <br>
+        <p style="font-size: 24px; font-weight: bold;">
+          <a href="mailto:contact@boundtext.com">contact@boundtext.com</a>
+        </p>
       </section>
     `;
   }
