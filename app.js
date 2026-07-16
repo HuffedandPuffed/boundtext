@@ -176,7 +176,7 @@
       </section>
       <section class="section" style="max-width: 800px; margin: 0 auto; padding-top: 20px;">
         <h2>Our Mission</h2>
-        <p class="subtitle" style="font-size: 24px; font-style: italic; line-height: 1.4; margin-bottom: 24px; color: inherit;">
+        <p class="subtitle" style="font-size: 32px; font-style: italic; line-height: 1.4; margin-bottom: 24px; color: inherit;">
           ${data.company.strapline}
         </p>
         <p style="font-size: 18px; line-height: 1.6; color: inherit;">
