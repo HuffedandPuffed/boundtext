@@ -189,30 +189,22 @@
   function renderContact() {
     main.innerHTML = `
       <section class="page-hero">
-        <p class="eyebrow">Contact Us</p>
-        <h1>Get in touch.</h1>
-        <p>We would love to hear from you. Whether you have a question about our books, need support with an order, or just want to say hello, drop us an email.</p>
+        <p class="eyebrow">Mailing List</p>
+        <h1>Join our list.</h1>
+        <p>Sign up to stay updated with everything happening at Bound Text Publishing.</p>
       </section>
       <section class="section">
-        <div class="tool-panel" style="max-width: 600px;">
-          <h2>Email Us</h2>
-          <p>For all inquiries, support, and professional contact, please reach out to our primary inbox.</p>
+        <div class="tool-panel" style="max-width: 600px; margin: 0 auto; text-align: center;">
+          <h2>Subscribe</h2>
+          <p>Get direct launch updates and private announcements.</p>
           <br>
-          <div class="split-actions">
-            <a class="button primary" href="mailto:${data.company.contactEmail}">Open Mail App</a>
-            <button class="button secondary" id="copy-email" type="button">Copy Email Address</button>
-          </div>
-          <p class="quiet" id="copy-status" style="margin-top: 10px; font-weight: bold;"></p>
-          <p class="quiet" style="margin-top: 20px;">Or email us directly at: <strong>${data.company.contactEmail}</strong></p>
+          <form action="https://boundtext-signup-engine.colin-533.workers.dev" method="POST" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto;">
+            <input type="email" name="email" placeholder="Enter your email address" required style="padding: 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 16px; width: 100%; box-sizing: border-box;">
+            <button type="submit" class="button primary" style="width: 100%; padding: 12px; cursor: pointer; border: none; font-size: 16px; font-weight: bold;">Join List</button>
+          </form>
         </div>
       </section>
     `;
-
-    document.querySelector("#copy-email").addEventListener("click", () => {
-      navigator.clipboard.writeText(data.company.contactEmail);
-      document.querySelector("#copy-status").textContent = "Email copied to clipboard!";
-      setTimeout(() => document.querySelector("#copy-status").textContent = "", 3000);
-    });
   }
 
   function renderAuthors() {
@@ -329,7 +321,7 @@
         <h1>Barcode and QR code maker.</h1>
         <p>Create ISBN barcodes with genuine checksum validation, publishing codes, retail labels, internal inventory codes, and QR codes for public use.</p>
       </section>
-    
+     
       <section class="tool-layout">
         <form class="tool-panel" id="barcode-form">
           <label>
