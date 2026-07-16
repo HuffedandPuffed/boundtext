@@ -59,6 +59,15 @@
     return { route, params: new URLSearchParams(query) };
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function renderMarketplaceSelect(className = "") {
     const current = getMarketplace().code;
     const hasManualOverride = Boolean(localStorage.getItem(marketKey));
@@ -250,6 +259,7 @@
 
   function renderBooks(filterAuthor = "") {
     const selectedAuthor = data.authors.some((author) => author.name === filterAuthor) ? filterAuthor : "";
+    const safeSelectedAuthor = escapeHtml(selectedAuthor);
     const booksForPage = selectedAuthor ? data.books.filter((book) => book.author === selectedAuthor) : data.books;
     const authors = ["All authors", ...data.authors.map((author) => author.name)];
     const categories = ["All categories", ...Array.from(new Set(booksForPage.map((book) => book.category)))];
@@ -257,15 +267,15 @@
       <section class="page-hero books-hero">
         <div>
           <p class="eyebrow">Bookshop</p>
-          <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "Bound Text."}</h1>
-          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
+          <h1>${selectedAuthor ? `${safeSelectedAuthor}'s books.` : "Bound Text."}</h1>
+          <p>${selectedAuthor ? `Showing only titles by ${safeSelectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
         </div>
         ${renderMarketplaceSelect("inline")}
       </section>
       <section class="filters" aria-label="Book filters">
         ${
           selectedAuthor
-            ? `<div class="locked-filter"><span>Author</span><strong>${selectedAuthor}</strong><a href="#books">View all books</a></div>`
+            ? `<div class="locked-filter"><span>Author</span><strong>${safeSelectedAuthor}</strong><a href="#books">View all books</a></div>`
             : `<label>
                 <span>Author</span>
                 <select id="author-filter">
