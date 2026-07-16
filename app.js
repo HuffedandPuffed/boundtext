@@ -174,14 +174,16 @@
         <h1>${data.company.name}</h1>
         <p>${data.company.intro}</p>
       </section>
-      <section class="section">
-        <div class="tool-panel" style="max-width: 800px;">
-          <h2>Our Mission</h2>
-          <p class="subtitle">${data.company.strapline}</p>
-          <p>We are an independent publisher committed to delivering high-quality, character-led fiction, practical nonfiction, and engaging puzzle books directly to curious readers worldwide. We believe in keeping the list focused, the voice human, and the door open for compelling new ideas.</p>
-          <br>
-          <a class="button primary" href="#authors">Meet our authors ${iconArrow()}</a>
-        </div>
+      <section class="section" style="max-width: 800px; margin: 0 auto; padding-top: 20px;">
+        <h2>Our Mission</h2>
+        <p class="subtitle" style="font-size: 24px; font-style: italic; line-height: 1.4; margin-bottom: 24px; color: inherit;">
+          ${data.company.strapline}
+        </p>
+        <p style="font-size: 18px; line-height: 1.6; color: inherit;">
+          We are an independent publisher committed to delivering high-quality, character-led fiction, practical nonfiction, and engaging puzzle books directly to curious readers worldwide. We believe in keeping the list focused, the voice human, and the door open for compelling new ideas.
+        </p>
+        <br><br>
+        <a class="button primary" href="#authors">Meet our authors ${iconArrow()}</a>
       </section>
     `;
   }
