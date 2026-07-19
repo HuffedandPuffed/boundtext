@@ -51,7 +51,7 @@ function handleFileSelect(event) {
   }
 }
 
-// core File Queue Registration Array Ingestion Architecture Loop
+// Core File Queue Registration Array Ingestion Architecture Loop
 function processIncomingFiles(fileList) {
   Array.from(fileList).forEach(file => {
     if (!file.type.startsWith('image/')) {
@@ -93,10 +93,12 @@ function processIncomingFiles(fileList) {
 function updateBulkSettings() {
   const format = document.getElementById('bulk-format').value;
   const quality = document.getElementById('bulk-quality').value;
-  const scale = document.getElementById('bulk-scale').value;
+  const scale = document.getElementById('bulk-scale-label');
 
   document.getElementById('bulk-quality-label').innerText = quality + '%';
-  document.getElementById('bulk-scale-label').innerText = scale + '%';
+  if (scale) {
+    document.getElementById('bulk-scale-label').innerText = document.getElementById('bulk-scale').value + '%';
+  }
 }
 
 // Apply settings configuration states to current item elements across the queue matrix arrays
@@ -118,7 +120,7 @@ function applyBulkToQueue() {
       
       if (fEl) fEl.value = format;
       if (qEl) qEl.value = quality;
-      if (sEl) sEl.value = scale;
+      if (sEl) scl.value = scale;
     }
   });
   
@@ -202,7 +204,6 @@ async function compressImage(item) {
   return new Promise((resolve) => {
     item.status = 'processing';
     
-    // Switch state layouts inside target container selectors
     document.getElementById(`controls-${item.id}`).classList.add('hidden');
     document.getElementById(`progress-wrapper-${item.id}`).classList.remove('hidden');
     document.getElementById(`bar-${item.id}`).style.width = '45%';
@@ -212,7 +213,6 @@ async function compressImage(item) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       
-      // Compute targeted bounding factor scales dimensions variables
       const scaleFactor = item.scale / 100;
       const targetWidth = Math.max(1, Math.round(img.naturalWidth * scaleFactor));
       const targetHeight = Math.max(1, Math.round(img.naturalHeight * scaleFactor));
@@ -220,10 +220,8 @@ async function compressImage(item) {
       canvas.width = targetWidth;
       canvas.height = targetHeight;
       
-      // Paint data directly into downscaled local texture buffers coordinates
       ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
       
-      // Map format select options back onto valid MIME targets string specifications
       let mimeType = 'image/webp';
       if (item.format === 'jpeg') mimeType = 'image/jpeg';
       if (item.format === 'png') mimeType = 'image/png';
@@ -258,7 +256,6 @@ async function compressImage(item) {
   });
 }
 
-// Switch view displays across processing targets templates nodes parameters adjustments configurations values
 function finalizeItemUI(item) {
   document.getElementById(`progress-wrapper-${item.id}`).classList.add('hidden');
   
@@ -266,7 +263,6 @@ function finalizeItemUI(item) {
   statusIcon.className = "indicator-icon bg-green";
   statusIcon.innerHTML = `<i data-lucide="check" style="width:12px; height:12px;"></i>`;
   
-  const originalKB = item.originalSize / 1024;
   const compressedKB = item.processedSize / 1024;
   const savingsPercent = Math.max(0, Math.round(((item.originalSize - item.processedSize) / item.originalSize) * 100));
   
@@ -290,7 +286,6 @@ function finalizeItemUI(item) {
   if (window.lucide) { lucide.createIcons(); }
 }
 
-// Master execution block handling full operational stack compression processing runs loops hooks
 async function processAll() {
   const processBtn = document.getElementById('process-all-btn');
   const txt = document.getElementById('process-all-text');
@@ -310,7 +305,6 @@ async function processAll() {
   showBannerAlert("Bulk acceleration workflow completed processing successfully across the runtime pipeline stack array targets.");
 }
 
-// Update Master Bento Dashboard Analytics Summary Modules View Blocks Context State Changes
 function updateDashboardUI() {
   const loadedCount = queue.length;
   const pendingCount = queue.filter(x => x.status === 'pending').length;
@@ -330,7 +324,6 @@ function updateDashboardUI() {
     activeDash.classList.add('hidden');
   }
 
-  // Calculate totals tracking metrics summaries values
   totalOriginalBytes = 0;
   totalProcessedBytes = 0;
   let doneItems = 0;
@@ -348,7 +341,6 @@ function updateDashboardUI() {
     savingsBox.classList.remove('hidden');
     const savedBytes = totalOriginalBytes - totalProcessedBytes;
     
-    // Format byte metrics tracking sizes human readable labels parameters configurations
     if (savedBytes > 1024 * 1024) {
       document.getElementById('savings-bytes-label').innerText = (savedBytes / (1024 * 1024)).toFixed(2) + ' MB';
     } else {
@@ -362,10 +354,9 @@ function updateDashboardUI() {
   }
 }
 
-// Compile working assets blobs into memory aggregate structure packages via JSZip engine context methods
 function downloadAllZip() {
   if (!window.JSZip) {
-    alert("Cross-origin failure link element parameter definition: ZIP engine module library missing.");
+    alert("ZIP engine module library missing.");
     return;
   }
   
@@ -393,7 +384,6 @@ function downloadAllZip() {
   });
 }
 
-// Purge full array allocation instances track lists reset application layout panels anchors indexes definitions
 function clearQueue() {
   queue.forEach(x => {
     if (x.previewUrl) URL.revokeObjectURL(x.previewUrl);
@@ -413,7 +403,6 @@ function clearQueue() {
   showBannerAlert("Sandbox pipeline environment state memory modules purged cleared down completely clean.");
 }
 
-// Split Frame View Sliding Comparison Modal Management Engine Interceptor Routines Hooks Links
 let currentActiveCompareItem = null;
 
 function launchVisualAuditModal(id) {
@@ -440,9 +429,7 @@ function launchVisualAuditModal(id) {
     a.click();
   };
   
-  // Center clipping plane handle variables values tracking markers indexes assignments configuration layout properties
   handleCompareSlider(50);
-  
   document.getElementById('compare-modal').classList.remove('hidden');
 }
 
@@ -463,7 +450,6 @@ function closeCompareModal() {
   currentActiveCompareItem = null;
 }
 
-// Display Toast Floating Alert Status Indicator Messaging Notification Windows Components Bars Layout Units Hooks
 function showBannerAlert(msg) {
   const alertZone = document.getElementById('global-message-zone');
   if (!alertZone) return;
