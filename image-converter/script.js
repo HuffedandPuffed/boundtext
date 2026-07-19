@@ -1,531 +1,479 @@
-// Application Memory State Queue
-let filesQueue = [];
-let bulkSettings = { format: 'webp', quality: 0.8, scale: 100 };
-let activeCompareId = null;
+// Global App State Workspace Storage Queue
+let queue = [];
+let totalOriginalBytes = 0;
+let totalProcessedBytes = 0;
 
-// Initialization
-document.addEventListener("DOMContentLoaded", () => {
-  lucide.createIcons();
-  setupDragAndDrop();
+// Initialize Drag & Drop Interceptors once DOM finishes painting
+document.addEventListener('DOMContentLoaded', () => {
+  const dropZone = document.getElementById('drop-zone');
+  
+  if (dropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.borderColor = '#C5A059';
+        dropZone.style.backgroundColor = '#18181b';
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.borderColor = '#3f3f46';
+        dropZone.style.backgroundColor = '#18181b';
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files.length > 0) {
+        processIncomingFiles(dt.files);
+      }
+    }, false);
+  }
+  
+  // Initialize Lucide Vector Graphics Icon Engine Font Nodes
+  if (window.lucide) { lucide.createIcons(); }
 });
 
-// Helper: Format File Sizes cleanly
-function formatBytes(bytes, decimals = 2) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-// Helper: Alter filename strings with target formats
-function renameExtension(filename, format) {
-  return filename.substring(0, filename.lastIndexOf('.')) + '.' + format;
-}
-
-// Trigger browser hidden click
+// Trigger File System Selection Window Dialog Launcher Hook
 function triggerUpload() {
-  document.getElementById("file-input").click();
+  document.getElementById('file-input').click();
 }
 
-// Setup Drag and Drop events hooks
-function setupDragAndDrop() {
-  const zone = document.getElementById("drop-zone");
-  const title = document.getElementById("drop-title");
-
-  ['dragenter', 'dragover'].forEach(eventName => {
-    zone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      zone.classList.add('border-zinc-500', 'bg-zinc-100', 'shadow-inner');
-      title.innerText = "Drop your images here!";
-    }, false);
-  });
-
-  ['dragleave', 'drop'].forEach(eventName => {
-    zone.addEventListener(eventName, (e) => {
-      e.preventDefault();
-      zone.classList.remove('border-zinc-500', 'bg-zinc-100', 'shadow-inner');
-      title.innerText = "Drop your assets here";
-    }, false);
-  });
-
-  zone.addEventListener('drop', (e) => {
-    if (e.dataTransfer.files) {
-      handleFilesAdded(e.dataTransfer.files);
-    }
-  });
-}
-
-// Handle dynamic input file selection array parsing
+// Input Select Change Entry Hook Event Handler
 function handleFileSelect(event) {
-  handleFilesAdded(event.target.files);
+  if (event.target.files && event.target.files.length > 0) {
+    processIncomingFiles(event.target.files);
+    event.target.value = ''; // Reset slot descriptor index
+  }
 }
 
-// Master execution: Map files directly into local sandboxed memory arrays
-async function handleFilesAdded(fileList) {
-  if (!fileList.length) return;
-  showGlobalMessage(`Loading ${fileList.length} file(s)...`, 'info');
-
-  for (let file of fileList) {
+// core File Queue Registration Array Ingestion Architecture Loop
+function processIncomingFiles(fileList) {
+  Array.from(fileList).forEach(file => {
     if (!file.type.startsWith('image/')) {
-      showGlobalMessage(`Skipped non-image file: ${file.name}`, 'error');
-      continue;
+      alert(`Asset tracking skip: "${file.name}" is not a valid graphic image schema format.`);
+      return;
     }
 
-    const id = Math.random().toString(36).substring(2, 9);
-    const previewUrl = URL.createObjectURL(file);
-
-    try {
-      const dimensions = await getImageDimensions(previewUrl);
-      
-      filesQueue.push({
-        id,
-        file,
-        name: file.name,
-        originalSize: file.size,
-        originalWidth: dimensions.width,
-        originalHeight: dimensions.height,
-        previewUrl,
-        status: 'idle',
-        progress: 0,
-        format: bulkSettings.format,
-        quality: bulkSettings.quality,
-        scale: bulkSettings.scale,
-        resizeWidth: Math.round(dimensions.width * (bulkSettings.scale / 100)),
-        resizeHeight: Math.round(dimensions.height * (bulkSettings.scale / 100)),
-        aspectRatio: dimensions.width / dimensions.height,
-        compressedUrl: null,
-        compressedSize: null,
-        blob: null
-      });
-    } catch (err) {
-      showGlobalMessage(`Failed loading dimensions for ${file.name}`, 'error');
-    }
-  }
-
-  syncUI();
-}
-
-// Read asynchronous dimension properties from browser memory references
-function getImageDimensions(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    img.onerror = () => reject(new Error("Dimensions load failure"));
-    img.src = url;
-  });
-}
-
-// Synchronize Settings Values
-function updateBulkSettings() {
-  const formatEl = document.getElementById("bulk-format");
-  const qualityEl = document.getElementById("bulk-quality");
-  const scaleEl = document.getElementById("bulk-scale");
-  
-  if (!formatEl || !qualityEl || !scaleEl) return;
-
-  bulkSettings.format = formatEl.value;
-  bulkSettings.quality = parseFloat(qualityEl.value) / 100;
-  bulkSettings.scale = parseInt(scaleEl.value);
-
-  document.getElementById("bulk-quality-label").innerText = Math.round(bulkSettings.quality * 100) + '%';
-  document.getElementById("bulk-scale-label").innerText = bulkSettings.scale + '%';
-
-  if (bulkSettings.format === 'png') {
-    qualityEl.disabled = true;
-  } else {
-    qualityEl.disabled = false;
-  }
-}
-
-// Apply bulk side menu properties globally across whole queue array
-function applyBulkToQueue() {
-  if (!filesQueue.length) return showGlobalMessage('No items loaded.', 'info');
-
-  filesQueue = filesQueue.map(item => {
-    if (item.status === 'processing') return item;
-    if (item.compressedUrl) URL.revokeObjectURL(item.compressedUrl);
-
-    return {
-      ...item,
-      format: bulkSettings.format,
-      quality: bulkSettings.quality,
-      scale: bulkSettings.scale,
-      resizeWidth: Math.round(item.originalWidth * (bulkSettings.scale / 100)),
-      resizeHeight: Math.round(item.originalHeight * (bulkSettings.scale / 100)),
-      status: 'idle',
-      compressedUrl: null,
-      compressedSize: null,
-      blob: null
+    const item = {
+      id: 'asset_' + Math.random().toString(36).substr(2, 9),
+      file: file,
+      name: file.name,
+      originalSize: file.size,
+      format: document.getElementById('bulk-format').value,
+      quality: parseInt(document.getElementById('bulk-quality').value),
+      scale: parseInt(document.getElementById('bulk-scale').value),
+      status: 'pending',
+      previewUrl: URL.createObjectURL(file),
+      processedBlob: null,
+      processedUrl: null,
+      processedSize: 0,
+      width: 0,
+      height: 0
     };
-  });
 
-  showGlobalMessage('Applied bulk configuration globally.', 'success');
-  syncUI();
-}
-
-// Update specific values inline per grid component item directly
-function updateItemParam(id, updates) {
-  filesQueue = filesQueue.map(item => {
-    if (item.id !== id) return item;
-    let target = { ...item, ...updates };
-
-    if (updates.resizeWidth !== undefined) {
-      target.resizeHeight = Math.round(updates.resizeWidth / item.aspectRatio);
-    } else if (updates.resizeHeight !== undefined) {
-      target.resizeWidth = Math.round(updates.resizeHeight * item.aspectRatio);
-    }
-
-    if (item.compressedUrl && (updates.format || updates.quality || updates.resizeWidth || updates.resizeHeight || updates.scale)) {
-      URL.revokeObjectURL(item.compressedUrl);
-      target.status = 'idle';
-      target.compressedUrl = null;
-      target.compressedSize = null;
-      target.blob = null;
-    }
-    return target;
-  });
-  syncUI();
-}
-
-// Remove item from state index positions
-function deleteItem(id) {
-  const target = filesQueue.find(f => f.id === id);
-  if (target) {
-    if (target.previewUrl) URL.revokeObjectURL(target.previewUrl);
-    if (target.compressedUrl) URL.revokeObjectURL(target.compressedUrl);
-  }
-  filesQueue = filesQueue.filter(f => f.id !== id);
-  syncUI();
-}
-
-// Completely empty arrays out safely
-function clearQueue() {
-  filesQueue.forEach(f => {
-    URL.revokeObjectURL(f.previewUrl);
-    if (f.compressedUrl) URL.revokeObjectURL(f.compressedUrl);
-  });
-  filesQueue = [];
-  syncUI();
-}
-
-// Asynchronous internal processor loops
-function processSingleFile(id) {
-  return new Promise(async (resolve) => {
-    const item = filesQueue.find(f => f.id === id);
-    if (!item || item.status === 'processing') return resolve(false);
-
-    updateItemParam(id, { status: 'processing', progress: 30 });
-
+    // Extract exact native resolution data markers via image preloader instance
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      const targetWidth = item.resizeWidth || item.originalWidth;
-      const targetHeight = item.resizeHeight || item.originalHeight;
-      
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-
-      let mimeType = "image/webp";
-      if (item.format === 'jpeg') mimeType = "image/jpeg";
-      if (item.format === 'png') mimeType = "image/png";
-
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          updateItemParam(id, { status: 'error', progress: 0 });
-          return resolve(false);
-        }
-
-        const compressedUrl = URL.createObjectURL(blob);
-        updateItemParam(id, {
-          status: 'completed',
-          progress: 100,
-          compressedSize: blob.size,
-          compressedWidth: targetWidth,
-          compressedHeight: targetHeight,
-          compressedUrl,
-          blob: blob
-        });
-        resolve(true);
-      }, mimeType, item.format === 'png' ? 1.0 : item.quality);
-    };
-
-    img.onerror = () => {
-      updateItemParam(id, { status: 'error', progress: 0 });
-      resolve(false);
+      item.width = img.naturalWidth;
+      item.height = img.naturalHeight;
+      queue.push(item);
+      renderQueue();
+      updateDashboardUI();
     };
     img.src = item.previewUrl;
   });
 }
 
-// Map loop configurations down sequentially to convert all
-async function processAll() {
-  const targets = filesQueue.filter(f => f.status === 'idle' || f.status === 'error');
-  if (!targets.length) return;
+// Sync Global Sliders and Output Options with Settings Panel Labels
+function updateBulkSettings() {
+  const format = document.getElementById('bulk-format').value;
+  const quality = document.getElementById('bulk-quality').value;
+  const scale = document.getElementById('bulk-scale').value;
 
-  document.getElementById("process-all-icon").classList.add("animate-spin");
-  document.getElementById("process-all-text").innerText = "Converting Queue Assets...";
-
-  for (let item of targets) {
-    await processSingleFile(item.id);
-  }
-
-  document.getElementById("process-all-icon").classList.remove("animate-spin");
-  document.getElementById("process-all-text").innerText = "Process All Assets";
-  showGlobalMessage("Queue transformation processing completed!", "success");
+  document.getElementById('bulk-quality-label').innerText = quality + '%';
+  document.getElementById('bulk-scale-label').innerText = scale + '%';
 }
 
-// Bulk Compile JSZip Engine functions bundles
-async function downloadAllZip() {
-  const targets = filesQueue.filter(f => f.status === 'completed' && f.blob);
-  if (!targets.length) return;
+// Apply settings configuration states to current item elements across the queue matrix arrays
+function applyBulkToQueue() {
+  const format = document.getElementById('bulk-format').value;
+  const quality = parseInt(document.getElementById('bulk-quality').value);
+  const scale = parseInt(document.getElementById('bulk-scale').value);
 
-  showGlobalMessage("Generating batch archive zip package...", "info");
-  const zip = new JSZip();
-
-  targets.forEach(item => {
-    const name = renameExtension(item.name, item.format);
-    zip.file(name, item.blob);
+  queue.forEach(item => {
+    if (item.status !== 'done' && item.status !== 'processing') {
+      item.format = format;
+      item.quality = quality;
+      item.scale = scale;
+      
+      // Update individual template field DOM selector mappings directly
+      const fEl = document.getElementById(`fmt-${item.id}`);
+      const qEl = document.getElementById(`qlt-${item.id}`);
+      const sEl = document.getElementById(`scl-${item.id}`);
+      
+      if (fEl) fEl.value = format;
+      if (qEl) qEl.value = quality;
+      if (sEl) sEl.value = scale;
+    }
   });
-
-  const content = await zip.generateAsync({ type: "blob" });
-  const url = URL.createObjectURL(content);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `boundtext_archive_${Date.now().toString().substring(7)}.zip`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
-
-// Single anchor elements download executions
-function downloadSingle(id) {
-  const item = filesQueue.find(f => f.id === id);
-  if (!item || !item.compressedUrl) return;
-
-  const a = document.createElement("a");
-  a.href = item.compressedUrl;
-  a.download = renameExtension(item.name, item.format);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-// UI Panel visibility states toggle functions
-function toggleBulkPanel() {
-  const panel = document.getElementById("bulk-panel-content");
-  const icon = document.getElementById("bulk-toggle-icon");
-  if (panel.classList.contains('hidden')) {
-    panel.classList.remove('hidden');
-    icon.setAttribute('data-lucide', 'chevron-up');
-  } else {
-    panel.classList.add('hidden');
-    icon.setAttribute('data-lucide', 'chevron-down');
-  }
-  lucide.createIcons();
-}
-
-// Sync State arrays downstream dynamically directly into document tree renders
-function syncUI() {
-  const queueSection = document.getElementById("queue-section");
-  const queueList = document.getElementById("queue-list");
-  const counter = document.getElementById("queue-counter");
   
-  const dbEmpty = document.getElementById("dashboard-empty");
-  const dbActive = document.getElementById("dashboard-active");
+  showBannerAlert("Settings configuration profile mapped globally onto remaining queued queue entries.");
+}
 
-  if (filesQueue.length === 0) {
+// Synchronize state configurations across standalone single element items
+function updateItemSettings(id, key, value) {
+  const item = queue.find(x => x.id === id);
+  if (item) {
+    item[key] = (key === 'format') ? value : parseInt(value);
+  }
+}
+
+// Dynamic Template Grid Interface Construction Engine
+function renderQueue() {
+  const queueList = document.getElementById('queue-list');
+  const queueSection = document.getElementById('queue-section');
+  
+  if (queue.length === 0) {
     queueSection.classList.add('hidden');
-    dbActive.classList.add('hidden');
-    dbEmpty.classList.remove('hidden');
+    queueList.innerHTML = '';
     return;
   }
 
   queueSection.classList.remove('hidden');
-  dbEmpty.classList.add('hidden');
-  dbActive.classList.remove('hidden');
-  counter.innerText = filesQueue.length;
-
-  document.getElementById("stat-total-loaded").innerText = `${filesQueue.length} loaded`;
-  const pending = filesQueue.filter(f => f.status === 'idle').length;
-  document.getElementById("stat-pending-count").innerText = `${pending} pending`;
-
-  let totalOriginal = 0;
-  let totalCompressed = 0;
-  let completes = 0;
-
-  filesQueue.forEach(f => {
-    totalOriginal += f.originalSize;
-    if (f.status === 'completed' && f.compressedSize) {
-      totalCompressed += f.compressedSize;
-      completes++;
-    } else {
-      totalCompressed += f.originalSize;
-    }
-  });
-
-  const zipBtn = document.getElementById("zip-btn");
-  if (completes > 0) {
-    zipBtn.disabled = false;
-    zipBtn.innerText = `Download All as ZIP (${completes})`;
-    const savings = totalOriginal - totalCompressed;
-    const pct = ((savings / totalOriginal) * 100).toFixed(0);
+  queueList.innerHTML = queue.map(item => {
+    const sizeKB = (item.originalSize / 1024).toFixed(1) + ' KB';
     
-    document.getElementById("savings-summary-box").classList.remove('hidden');
-    document.getElementById("savings-bytes-label").innerText = formatBytes(savings);
-    document.getElementById("savings-percent-label").innerText = `Total Bandwidth Saved (-${pct}%)`;
-  } else {
-    zipBtn.disabled = true;
-    zipBtn.innerText = "Download All as ZIP";
-    document.getElementById("savings-summary-box").classList.add('hidden');
-  }
-
-  queueList.innerHTML = filesQueue.map(item => {
-    const comp = item.status === 'completed';
-    const proc = item.status === 'processing';
-    const err = item.status === 'error';
-    const pctSaved = comp ? (((item.originalSize - item.compressedSize) / item.originalSize) * 100).toFixed(0) : 0;
-
     return `
-      <div class="border rounded-3xl p-5 transition bg-white ${proc ? 'border-zinc-500 ring-1 ring-zinc-200' : 'border-zinc-200'}">
-        <div class="flex flex-col md:flex-row md:items-start md:space-x-5">
-          <div class="relative w-full md:w-32 h-32 md:h-28 bg-zinc-50 rounded-2xl overflow-hidden shrink-0 border border-zinc-100 mb-4 md:mb-0 flex items-center justify-center">
-            <img src="${item.previewUrl}" class="max-w-full max-h-full object-contain">
-            ${comp ? '<div class="absolute top-2 right-2 bg-emerald-600 text-white rounded-full p-1 shadow"><i data-lucide="check" class="w-3 h-3 stroke-[3]"></i></div>' : ''}
-            ${err ? '<div class="absolute top-2 right-2 bg-rose-600 text-white rounded-full p-1 shadow"><i data-lucide="alert-circle" class="w-3 h-3 stroke-[3]"></i></div>' : ''}
+      <div class="queue-card" id="card-${item.id}">
+        <div class="queue-row">
+          <div class="preview-box">
+            <img src="${item.previewUrl}" alt="Thumbnail preview">
+            <div id="status-icon-${item.id}"></div>
           </div>
-
-          <div class="flex-1 min-w-0 flex flex-col justify-between space-y-4">
-            <div>
-              <div class="flex items-start justify-between gap-2">
-                <h4 class="text-sm font-bold text-zinc-900 truncate">${item.name}</h4>
-                <button onclick="deleteItem('${item.id}')" class="text-zinc-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+          
+          <div class="meta-area">
+            <div class="meta-top">
+              <span class="meta-filename" title="${item.name}">${item.name}</span>
+              <span class="meta-specs">${item.width}x${item.height}px | ${sizeKB}</span>
+            </div>
+            
+            <div class="controls-grid" id="controls-${item.id}">
+              <div class="input-wrapper">
+                <label>Format</label>
+                <select id="fmt-${item.id}" onchange="updateItemSettings('${item.id}', 'format', this.value)">
+                  <option value="webp" ${item.format === 'webp' ? 'selected' : ''}>WEBP</option>
+                  <option value="jpeg" ${item.format === 'jpeg' ? 'selected' : ''}>JPEG</option>
+                  <option value="png" ${item.format === 'png' ? 'selected' : ''}>PNG</option>
+                </select>
               </div>
-              <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-zinc-500 mt-1 font-medium">
-                <span class="font-semibold text-zinc-800">${formatBytes(item.originalSize)}</span>
-                <span class="text-zinc-300">•</span>
-                <span class="font-mono">${item.originalWidth} × ${item.originalHeight} px</span>
+              
+              <div class="input-wrapper">
+                <label>Quality</label>
+                <input type="number" id="qlt-${item.id}" min="10" max="100" value="${item.quality}" onchange="updateItemSettings('${item.id}', 'quality', this.value)">
+              </div>
+              
+              <div class="input-wrapper">
+                <label>Scale (%)</label>
+                <input type="number" id="scl-${item.id}" min="10" max="100" value="${item.scale}" onchange="updateItemSettings('${item.id}', 'scale', this.value)">
               </div>
             </div>
-
-            <div class="bg-zinc-50 p-4 rounded-2xl border border-zinc-200 space-y-4">
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div>
-                  <label class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">Format</label>
-                  <select onchange="updateItemParam('${item.id}', {format: this.value})" ${proc ? 'disabled' : ''} class="w-full text-xs font-semibold bg-white border border-zinc-200 text-zinc-800 rounded-xl px-2.5 py-2 focus:outline-none">
-                    <option value="webp" ${item.format === 'webp' ? 'selected' : ''}>WEBP</option>
-                    <option value="jpeg" ${item.format === 'jpeg' ? 'selected' : ''}>JPEG</option>
-                    <option value="png" ${item.format === 'png' ? 'selected' : ''}>PNG</option>
-                  </select>
-                </div>
-
-                <div>
-                  <div class="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5">
-                    <span>Quality</span>
-                    <span class="font-mono text-zinc-900 font-bold">${Math.round(item.quality * 100)}%</span>
-                  </div>
-                  <input type="range" min="10" max="100" step="5" value="${Math.round(item.quality * 100)}" ${proc || item.format === 'png' ? 'disabled' : ''} onchange="updateItemParam('${item.id}', {quality: parseFloat(this.value)/100})" class="w-full h-8 appearance-none bg-transparent cursor-pointer accent-zinc-950">
-                </div>
-
-                <div class="col-span-2 sm:col-span-1 flex flex-col justify-end">
-                  <div class="grid grid-cols-2 gap-1 bg-white p-1 rounded-xl border border-zinc-200">
-                    <input type="number" value="${item.resizeWidth}" ${proc ? 'disabled' : ''} onchange="updateItemParam('${item.id}', {resizeWidth: parseInt(this.value)})" class="w-full text-center text-xs font-mono py-1 rounded bg-zinc-50 border-0 focus:outline-none">
-                    <input type="number" value="${item.resizeHeight}" ${proc ? 'disabled' : ''} onchange="updateItemParam('${item.id}', {resizeHeight: parseInt(this.value)})" class="w-full text-center text-xs font-mono py-1 rounded bg-zinc-50 border-0 focus:outline-none">
-                  </div>
-                </div>
-              </div>
+            
+            <div id="progress-wrapper-${item.id}" class="hidden">
+              <div class="loading-track"><div id="bar-${item.id}" class="loading-fill" style="width: 0%;"></div></div>
             </div>
-
-            ${proc ? `
-              <div class="space-y-2">
-                <div class="w-full bg-zinc-100 rounded-full h-1.5 overflow-hidden"><div class="bg-zinc-950 h-full rounded-full transition-all duration-300" style="width: ${item.progress}%"></div></div>
-              </div>
-            ` : ''}
-
-            ${comp ? `
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs text-zinc-500 font-semibold">Optimized:</span>
-                  <span class="text-xs font-bold font-mono text-zinc-800">${formatBytes(item.compressedSize)}</span>
-                  <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold rounded-full border border-emerald-200">-${pctSaved}% Saved</span>
-                </div>
-                <span class="text-[11px] text-zinc-400 font-mono font-bold">${item.compressedWidth} × ${item.compressedHeight} px</span>
-              </div>
-            ` : ''}
-
-            <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-              ${comp ? `<button onclick="openCompareModal('${item.id}')" class="inline-flex items-center px-4 py-2 text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition shadow-xs"><i data-lucide="maximize-2" class="w-3.5 h-3.5 mr-1.5"></i> Compare Visuals</button>` : ''}
-              <button onclick="${comp ? `downloadSingle('${item.id}')` : `processSingleFile('${item.id}')`}" class="inline-flex items-center px-4.5 py-2 text-xs font-bold text-white bg-zinc-950 hover:bg-zinc-900 rounded-xl transition">
-                <i data-lucide="${comp ? 'download' : 'refresh-cw'}" class="w-3.5 h-3.5 mr-1.5"></i> ${comp ? 'Download' : 'Optimize & Convert'}
-              </button>
-            </div>
+            
+            <div id="result-badge-${item.id}" class="done-badge hidden"></div>
           </div>
         </div>
       </div>
     `;
   }).join('');
-
-  lucide.createIcons();
+  
+  if (window.lucide) { lucide.createIcons(); }
 }
 
-// Visual Comparison Slider Modals
-function openCompareModal(id) {
-  const item = filesQueue.find(f => f.id === id);
-  if (!item || !item.compressedUrl) return;
+// Primary GPU-Accelerated Canvas Transform & Compression Worker Pipeline Execution Logic
+async function compressImage(item) {
+  return new Promise((resolve) => {
+    item.status = 'processing';
+    
+    // Switch state layouts inside target container selectors
+    document.getElementById(`controls-${item.id}`).classList.add('hidden');
+    document.getElementById(`progress-wrapper-${item.id}`).classList.remove('hidden');
+    document.getElementById(`bar-${item.id}`).style.width = '45%';
+    
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Compute targeted bounding factor scales dimensions variables
+      const scaleFactor = item.scale / 100;
+      const targetWidth = Math.max(1, Math.round(img.naturalWidth * scaleFactor));
+      const targetHeight = Math.max(1, Math.round(img.naturalHeight * scaleFactor));
+      
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      
+      // Paint data directly into downscaled local texture buffers coordinates
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+      
+      // Map format select options back onto valid MIME targets string specifications
+      let mimeType = 'image/webp';
+      if (item.format === 'jpeg') mimeType = 'image/jpeg';
+      if (item.format === 'png') mimeType = 'image/png';
+      
+      const encoderQuality = item.quality / 100;
+      
+      document.getElementById(`bar-${item.id}`).style.width = '80%';
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          item.processedBlob = blob;
+          item.processedSize = blob.size;
+          item.processedUrl = URL.createObjectURL(blob);
+          item.status = 'done';
+          
+          document.getElementById(`bar-${item.id}`).style.width = '100%';
+          finalizeItemUI(item);
+        } else {
+          item.status = 'error';
+          showBannerAlert(`Compression routine crashed out on file tracking ID element context: ${item.name}`);
+        }
+        resolve();
+      }, mimeType, encoderQuality);
+    };
+    
+    img.onerror = () => {
+      item.status = 'error';
+      resolve();
+    };
+    
+    img.src = item.previewUrl;
+  });
+}
 
-  activeCompareId = id;
-  document.getElementById("compare-title").innerText = `Comparing: ${item.name}`;
-  document.getElementById("compare-img-original").src = item.previewUrl;
-  document.getElementById("compare-img-compressed").src = item.compressedUrl;
-
-  document.getElementById("compare-size-orig").innerText = `Original (${formatBytes(item.originalSize)})`;
-  document.getElementById("compare-size-comp").innerText = `Optimized (${formatBytes(item.compressedSize)})`;
-
-  document.getElementById("modal-metric-orig").innerText = `${item.file.type.split('/')[1].toUpperCase()} (${item.originalWidth}x${item.originalHeight})`;
-  document.getElementById("modal-metric-comp").innerText = `${item.format.toUpperCase()} (${item.resizeWidth}x${item.resizeHeight})`;
+// Switch view displays across processing targets templates nodes parameters adjustments configurations values
+function finalizeItemUI(item) {
+  document.getElementById(`progress-wrapper-${item.id}`).classList.add('hidden');
   
-  const savings = (((item.originalSize - item.compressedSize) / item.originalSize) * 100).toFixed(0);
-  document.getElementById("modal-metric-savings").innerText = `-${savings}%`;
+  const statusIcon = document.getElementById(`status-icon-${item.id}`);
+  statusIcon.className = "indicator-icon bg-green";
+  statusIcon.innerHTML = `<i data-lucide="check" style="width:12px; height:12px;"></i>`;
+  
+  const originalKB = item.originalSize / 1024;
+  const compressedKB = item.processedSize / 1024;
+  const savingsPercent = Math.max(0, Math.round(((item.originalSize - item.processedSize) / item.originalSize) * 100));
+  
+  const badge = document.getElementById(`result-badge-${item.id}`);
+  badge.classList.remove('hidden');
+  badge.innerHTML = `
+    <div style="display:flex; align-items:center; gap:0.5rem; width:100%; justify-content:space-between;">
+      <span>Output size saved down to: <strong>${compressedKB.toFixed(1)} KB</strong></span>
+      <span class="saving-badge">${savingsPercent}% Smaller</span>
+    </div>
+    <div class="card-actions" style="margin-top:8px;">
+      <button onclick="launchVisualAuditModal('${item.id}')" class="btn-white" style="padding:4px 8px; font-size:10px; border-radius:6px;">
+        Audit Layout Split
+      </button>
+      <a href="${item.processedUrl}" download="optimized_${item.name.split('.')[0]}.${item.format}" class="btn-black" style="padding:4px 8px; font-size:10px; border-radius:6px; text-decoration:none;">
+        Save Asset
+      </a>
+    </div>
+  `;
+  
+  if (window.lucide) { lucide.createIcons(); }
+}
 
-  document.getElementById("modal-download-btn").setAttribute("onclick", `downloadSingle('${item.id}')`);
+// Master execution block handling full operational stack compression processing runs loops hooks
+async function processAll() {
+  const processBtn = document.getElementById('process-all-btn');
+  const txt = document.getElementById('process-all-text');
+  
+  processBtn.disabled = true;
+  txt.innerText = "Processing Assets Engine Live...";
+  
+  for (let item of queue) {
+    if (item.status === 'pending') {
+      await compressImage(item);
+      updateDashboardUI();
+    }
+  }
+  
+  txt.innerText = "Process Run Cycle Completed";
+  document.getElementById('zip-btn').disabled = false;
+  showBannerAlert("Bulk acceleration workflow completed processing successfully across the runtime pipeline stack array targets.");
+}
 
+// Update Master Bento Dashboard Analytics Summary Modules View Blocks Context State Changes
+function updateDashboardUI() {
+  const loadedCount = queue.length;
+  const pendingCount = queue.filter(x => x.status === 'pending').length;
+  
+  document.getElementById('queue-counter').innerText = loadedCount;
+  document.getElementById('stat-total-loaded').innerText = `${loadedCount} loaded`;
+  document.getElementById('stat-pending-count').innerText = `${pendingCount} pending`;
+  
+  const emptyDash = document.getElementById('dashboard-empty');
+  const activeDash = document.getElementById('dashboard-active');
+  
+  if (loadedCount > 0) {
+    emptyDash.classList.add('hidden');
+    activeDash.classList.remove('hidden');
+  } else {
+    emptyDash.classList.remove('hidden');
+    activeDash.classList.add('hidden');
+  }
+
+  // Calculate totals tracking metrics summaries values
+  totalOriginalBytes = 0;
+  totalProcessedBytes = 0;
+  let doneItems = 0;
+
+  queue.forEach(x => {
+    if (x.status === 'done') {
+      totalOriginalBytes += x.originalSize;
+      totalProcessedBytes += x.processedSize;
+      doneItems++;
+    }
+  });
+
+  const savingsBox = document.getElementById('savings-summary-box');
+  if (doneItems > 0 && totalOriginalBytes > totalProcessedBytes) {
+    savingsBox.classList.remove('hidden');
+    const savedBytes = totalOriginalBytes - totalProcessedBytes;
+    
+    // Format byte metrics tracking sizes human readable labels parameters configurations
+    if (savedBytes > 1024 * 1024) {
+      document.getElementById('savings-bytes-label').innerText = (savedBytes / (1024 * 1024)).toFixed(2) + ' MB';
+    } else {
+      document.getElementById('savings-bytes-label').innerText = (savedBytes / 1024).toFixed(1) + ' KB';
+    }
+    
+    const pct = Math.round((savedBytes / totalOriginalBytes) * 100);
+    document.getElementById('savings-percent-label').innerText = `Total Bandwidth Saved (${pct}%)`;
+  } else {
+    savingsBox.classList.add('hidden');
+  }
+}
+
+// Compile working assets blobs into memory aggregate structure packages via JSZip engine context methods
+function downloadAllZip() {
+  if (!window.JSZip) {
+    alert("Cross-origin failure link element parameter definition: ZIP engine module library missing.");
+    return;
+  }
+  
+  const zip = new JSZip();
+  let addedCount = 0;
+  
+  queue.forEach(item => {
+    if (item.status === 'done' && item.processedBlob) {
+      const cleanName = item.name.split('.')[0];
+      zip.file(`${cleanName}_optimized.${item.format}`, item.processedBlob);
+      addedCount++;
+    }
+  });
+  
+  if (addedCount === 0) {
+    alert("Empty package payload parameter tracking structure layout data compilation index target state exception.");
+    return;
+  }
+  
+  zip.generateAsync({ type: 'blob' }).then((content) => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(content);
+    link.download = `boundtext_optimized_batch_${Date.now()}.zip`;
+    link.click();
+  });
+}
+
+// Purge full array allocation instances track lists reset application layout panels anchors indexes definitions
+function clearQueue() {
+  queue.forEach(x => {
+    if (x.previewUrl) URL.revokeObjectURL(x.previewUrl);
+    if (x.processedUrl) URL.revokeObjectURL(x.processedUrl);
+  });
+  
+  queue = [];
+  totalOriginalBytes = 0;
+  totalProcessedBytes = 0;
+  
+  document.getElementById('process-all-btn').disabled = false;
+  document.getElementById('process-all-text').innerText = "Process All Assets";
+  document.getElementById('zip-btn').disabled = true;
+  
+  renderQueue();
+  updateDashboardUI();
+  showBannerAlert("Sandbox pipeline environment state memory modules purged cleared down completely clean.");
+}
+
+// Split Frame View Sliding Comparison Modal Management Engine Interceptor Routines Hooks Links
+let currentActiveCompareItem = null;
+
+function launchVisualAuditModal(id) {
+  const item = queue.find(x => x.id === id);
+  if (!item || !item.processedUrl) return;
+  
+  currentActiveCompareItem = item;
+  
+  document.getElementById('compare-title').innerText = `Auditing Compression Profile: ${item.name}`;
+  document.getElementById('compare-img-original').src = item.previewUrl;
+  document.getElementById('compare-img-compressed').src = item.processedUrl;
+  
+  document.getElementById('modal-metric-orig').innerText = (item.originalSize / 1024).toFixed(1) + ' KB';
+  document.getElementById('modal-metric-comp').innerText = (item.processedSize / 1024).toFixed(1) + ' KB';
+  
+  const pct = Math.round(((item.originalSize - item.processedSize) / item.originalSize) * 100);
+  document.getElementById('modal-metric-savings').innerText = `${pct}% Space Saved`;
+  
+  const dlBtn = document.getElementById('modal-download-btn');
+  dlBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.href = item.processedUrl;
+    a.download = `optimized_${item.name.split('.')[0]}.${item.format}`;
+    a.click();
+  };
+  
+  // Center clipping plane handle variables values tracking markers indexes assignments configuration layout properties
   handleCompareSlider(50);
-  document.getElementById("compare-modal").classList.remove("hidden");
+  
+  document.getElementById('compare-modal').classList.remove('hidden');
 }
 
 function handleCompareSlider(val) {
-  document.getElementById("compare-clip-container").style.clipPath = `polygon(${val}% 0, 100% 0, 100% 100%, ${val}% 100%)`;
-  document.getElementById("compare-slider-line").style.left = `${val}%`;
+  if (!currentActiveCompareItem) return;
+  
+  const line = document.getElementById('compare-slider-line');
+  const clipContainer = document.getElementById('compare-clip-container');
+  
+  if (line && clipContainer) {
+    line.style.left = val + '%';
+    clipContainer.style.clipPath = `polygon(${val}% 0, 100% 0, 100% 100%, ${val}% 100%)`;
+  }
 }
 
 function closeCompareModal() {
-  document.getElementById("compare-modal").classList.add("hidden");
-  activeCompareId = null;
+  document.getElementById('compare-modal').classList.add('hidden');
+  currentActiveCompareItem = null;
 }
 
-// Helper Toast banner system
-function showGlobalMessage(text, type) {
-  const zone = document.getElementById("global-message-zone");
-  let bg = "bg-white border-zinc-200 text-zinc-800";
-  let icon = "info";
-
-  if (type === 'success') { bg = "bg-white border-emerald-200 text-emerald-800 shadow-emerald-100/50"; icon = "check"; }
-  if (type === 'error') { bg = "bg-white border-rose-200 text-rose-800 shadow-rose-100/50"; icon = "alert-circle"; }
-
-  zone.innerHTML = `
-    <div class="p-4 rounded-2xl shadow-xl border flex items-start space-x-3 backdrop-blur-md ${bg}">
-      <i data-lucide="${icon}" class="w-5 h-5 shrink-0 mt-0.5"></i>
-      <div class="flex-1 text-xs font-semibold">${text}</div>
+// Display Toast Floating Alert Status Indicator Messaging Notification Windows Components Bars Layout Units Hooks
+function showBannerAlert(msg) {
+  const alertZone = document.getElementById('global-message-zone');
+  if (!alertZone) return;
+  
+  alertZone.innerHTML = `
+    <div style="background-color:#18181b; color:#ffffff; border:1px solid #C5A059; padding:0.75rem 1rem; border-radius:12px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.5); font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; justify-content:space-between;">
+      <span>${msg}</span>
     </div>
   `;
-  zone.classList.remove("hidden");
-  lucide.createIcons();
-
-  setTimeout(() => zone.classList.add("hidden"), 4000);
+  
+  alertZone.classList.remove('hidden');
+  setTimeout(() => { alertZone.classList.add('hidden'); }, 3500);
 }
