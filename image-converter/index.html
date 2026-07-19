@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bound Text Images - Local Media Sandbox</title>
   
-  <link rel="stylesheet" href="styles.css?v=pure-static">
+  <link rel="stylesheet" href="styles.css?v=bulletproof">
   
   <!-- JSZip Library for Bulk Downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- Lucide Icon Library -->
-  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
@@ -19,7 +17,6 @@
     <div class="header-container">
       <div class="brand-section">
         <div class="logo-container">
-          <!-- Climbs one level up out of the folder to grab your root brand logo instantly -->
           <img src="../bt logo tiny.webp" alt="Bound Text Monogram Logo" width="38" height="38">
         </div>
         <div class="title-area">
@@ -30,8 +27,7 @@
       
       <div class="header-actions">
         <span class="plan-badge">Free Plan</span>
-        <!-- Native label bypasses all script delays to open the file window immediately -->
-        <label for="file-input" class="btn-black" style="cursor: pointer;">
+        <label for="file-input" class="btn-black">
           Upload Files
         </label>
       </div>
@@ -46,17 +42,19 @@
       
       <!-- Workspace Left Panel: Dropzone & Item Queue List -->
       <div class="left-panel">
-        <input type="file" id="file-input" multiple accept="image/*" style="position: absolute; opacity: 0; width: 1px; height: 1px; z-index: -1;">
+        <!-- Input field is safely managed entirely by our external stylesheet configuration -->
+        <input type="file" id="file-input" multiple accept="image/*">
 
-        <!-- Interactive Drag & Drop Box Area linked natively to input -->
-        <label id="drop-zone" for="file-input" class="drop-box" style="display: block;">
+        <!-- Interactive Drag & Drop Box Area -->
+        <label id="drop-zone" for="file-input" class="drop-box">
           <div class="laser-line"></div>
           <div class="drop-icon-circle">
-            <i data-lucide="upload-cloud"></i>
+            <!-- Completely self-contained raw vectors bypass script-src blockers -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 1.75rem; height: 1.75rem; color: #F5E2B3;"><path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.54-1.95-2.01-3.5-4.5-3.5a5 5 0 0 0-5 5c-1.38 0-3 1.12-3 2.5A2.5 2.5 0 0 0 6 18h11.5Z"/><path d="M12 12v6"/><path d="m9 15 3-3 3 3"/></svg>
           </div>
           <h2>Drop your assets here</h2>
           <p class="drop-specs">PNG, JPEG, WEBP, GIF up to 50MB each</p>
-          <span class="btn-black" style="display: inline-block;">Browse Files</span>
+          <span class="btn-black">Browse Files</span>
           
           <div class="pill-container">
             <span class="format-pill">WebP</span>
@@ -222,6 +220,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=pure-static"></script>
+  <script src="script.js?v=bulletproof"></script>
 </body>
 </html>
