@@ -105,41 +105,44 @@ function processIncomingFiles(fileList) {
     if (!file.type.startsWith('image/')) return;
 
     const id = 'asset_' + Math.random().toString(36).substr(2, 9);
-    const previewUrl = URL.createObjectURL(file);
+    
+    // Converted to a FileReader string loop to completely avoid Blob blocks
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
 
-    const item = {
-      id: id,
-      file: file,
-      name: file.name,
-      originalSize: file.size,
-      format: document.getElementById('bulk-format')?.value || 'webp',
-      quality: parseInt(document.getElementById('bulk-quality')?.value || '80'),
-      scale: parseInt(document.getElementById('bulk-scale')?.value || '100'),
-      status: 'pending',
-      previewUrl: previewUrl,
-      processedBlob: null,
-      processedUrl: null,
-      processedSize: 0,
-      width: 0,
-      height: 0
+      const item = {
+        id: id,
+        file: file,
+        name: file.name,
+        originalSize: file.size,
+        format: document.getElementById('bulk-format')?.value || 'webp',
+        quality: parseInt(document.getElementById('bulk-quality')?.value || '80'),
+        scale: parseInt(document.getElementById('bulk-scale')?.value || '100'),
+        status: 'pending',
+        previewUrl: dataUrl, 
+        processedUrl: null,
+        processedSize: 0,
+        width: 0,
+        height: 0
+      };
+
+      queue.push(item);
+      renderQueue();
+      updateDashboardUI();
+
+      const img = new Image();
+      img.onload = () => {
+        item.width = img.naturalWidth;
+        item.height = img.naturalHeight;
+        const specsEl = document.getElementById(`specs-${item.id}`);
+        if (specsEl) {
+          specsEl.innerText = `${item.width}x${item.height}px | ${(item.originalSize / 1024).toFixed(1)} KB`;
+        }
+      };
+      img.src = dataUrl;
     };
-
-    // Push right onto the workspace collection immediately so the UI populates cards instantly
-    queue.push(item);
-    renderQueue();
-    updateDashboardUI();
-
-    // Try extracting real properties in background safely without blocking queue painting pipelines
-    const img = new Image();
-    img.onload = () => {
-      item.width = img.naturalWidth;
-      item.height = img.naturalHeight;
-      const specsEl = document.getElementById(`specs-${item.id}`);
-      if (specsEl) {
-        specsEl.innerText = `${item.width}x${item.height}px | ${(item.originalSize / 1024).toFixed(1)} KB`;
-      }
-    };
-    img.src = previewUrl;
+    reader.readAsDataURL(file);
   });
 }
 
@@ -263,20 +266,18 @@ async function compressImage(item) {
       const encoderQuality = item.quality / 100;
       document.getElementById('bar-' + item.id).style.width = '80%';
       
-      canvas.toBlob((blob) => {
-        if (blob) {
-          item.processedBlob = blob;
-          item.processedSize = blob.size;
-          item.processedUrl = URL.createObjectURL(blob);
-          item.status = 'done';
-          document.getElementById('bar-' + item.id).style.width = '100%';
-          finalizeItemUI(item);
-        } else {
-          item.status = 'error';
-          showBannerAlert(`Compression error encountered.`);
-        }
-        resolve();
-      }, mimeType, encoderQuality);
+      // canvas.toDataURL bypasses blob generation barriers instantly
+      const dataUrl = canvas.toDataURL(mimeType, encoderQuality);
+      
+      // Compute sizing metric targets precisely out of the string context lengths
+      const stringLength = dataUrl.split(',')[1].length;
+      item.processedSize = Math.round(stringLength * 0.75);
+      item.processedUrl = dataUrl;
+      item.status = 'done';
+      
+      document.getElementById('bar-' + item.id).style.width = '100%';
+      finalizeItemUI(item);
+      resolve();
     };
     img.onerror = () => { item.status = 'error'; resolve(); };
     img.src = item.previewUrl;
@@ -379,7 +380,7 @@ function updateDashboardUI() {
     const pct = Math.round((savedBytes / totalOriginalBytes) * 100);
     document.getElementById('savings-percent-label').innerText = `Total Bandwidth Saved (${pct}%)`;
   } else {
-    savingsBox.className = "savings-banner hidden";
+    if (savingsBox) savingsBox.classList.add('hidden');
   }
 }
 
@@ -387,27 +388,29 @@ function downloadAllZip() {
   if (!window.JSZip) return;
   const zip = new JSZip();
   let addedCount = 0;
+  
   queue.forEach(item => {
-    if (item.status === 'done' && item.processedBlob) {
+    if (item.status === 'done' && item.processedUrl) {
       const cleanName = item.name.split('.')[0];
-      zip.file(`${cleanName}_optimized.${item.format}`, item.processedBlob);
+      const base64Data = item.processedUrl.split(',')[1];
+      // Compiles directly from data string parameters
+      zip.file(`${cleanName}_optimized.${item.format}`, base64Data, { base64: true });
       addedCount++;
     }
   });
+  
   if (addedCount === 0) return;
-  zip.generateAsync({ type: 'blob' }).then((content) => {
+  
+  // Package output streams generated directly inside text channels
+  zip.generateAsync({ type: 'base64' }).then((base64String) => {
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(content);
+    link.href = 'data:application/zip;base64,' + base64String;
     link.download = `boundtext_optimized_batch_${Date.now()}.zip`;
     link.click();
   });
 }
 
 function clearQueue() {
-  queue.forEach(x => {
-    if (x.previewUrl) URL.revokeObjectURL(x.previewUrl);
-    if (x.processedUrl) URL.revokeObjectURL(x.processedUrl);
-  });
   queue = [];
   totalOriginalBytes = 0;
   totalProcessedBytes = 0;
