@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bound Text Images - Local Media Sandbox</title>
+  <!-- Tailwind CSS Engine for Layout Matching -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icon Library -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- JSZip Library for Bulk Downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    /* Laser Scanner Animation */
+    @keyframes scan {
+      0%, 100% { opacity: 0.3; transform: scale(0.98); }
+      50% { opacity: 0.7; transform: scale(1.02); }
+    }
+    .laser-pulse { animation: scan 1.5s infinite; }
+  </style>
+</head>
+<body class="min-h-screen bg-[#FAF9F6] text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900 pb-16">
+
+  <!-- Header -->
+  <header class="border-b border-zinc-200 sticky top-0 z-30 backdrop-blur-md bg-[#FAF9F6]/90">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-black rounded-lg flex flex-col justify-center items-center p-1 shadow-sm">
+          <svg viewBox="0 0 100 100" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#F5E2B3" />
+                <stop offset="50%" stopColor="#C5A059" />
+                <stop offset="100%" stopColor="#8F6F30" />
+              </linearGradient>
+            </defs>
+            <path d="M 35,38 L 35,72" stroke="url(#gold-grad)" stroke-width="4.5" stroke-linecap="square" />
+            <path d="M 29,38 L 41,38" stroke="url(#gold-grad)" stroke-width="3" />
+            <path d="M 29,72 L 41,72" stroke="url(#gold-grad)" stroke-width="3" />
+            <path d="M 50,30 L 50,80" stroke="url(#gold-grad)" stroke-width="5" stroke-linecap="square" />
+            <path d="M 42,80 L 58,80" stroke="url(#gold-grad)" stroke-width="3.5" />
+            <path d="M 35,54 L 50,54" stroke="url(#gold-grad)" stroke-width="4.5" />
+            <path d="M 28,37 L 28,34 C 28,31 32,30 35,30 L 65,30 C 68,30 72,31 72,34 L 72,37" stroke="url(#gold-grad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M 50,36 C 66,36 66,54 50,54" stroke="url(#gold-grad)" stroke-width="4.5" stroke-linecap="round" />
+            <path d="M 50,54 C 68,54 68,74 50,74" stroke="url(#gold-grad)" stroke-width="4.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-xl font-extrabold tracking-tight text-zinc-950 block leading-none">Bound Text Images</span>
+          <span class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1 block">Local Media Sandbox</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <span class="bg-zinc-100 px-3 py-1 rounded-full border border-zinc-200 text-zinc-600 text-xs font-semibold">Free Plan</span>
+        <button onclick="triggerUpload()" class="inline-flex items-center px-4 py-2 text-xs font-bold text-white bg-zinc-950 hover:bg-zinc-900 active:scale-95 rounded-xl transition">
+          <i data-lucide="upload-cloud" class="w-4 h-4 mr-2"></i> Upload Files
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Global Alert/Notification System -->
+  <div id="global-message-zone" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 hidden"></div>
+
+  <!-- Main Grid Workspace -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT WORKSPACE: File Queue & Drop Area -->
+      <div class="lg:col-span-8 space-y-6">
+        <input type="file" id="file-input" multiple accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+
+        <!-- Drag & Drop Zone -->
+        <div id="drop-zone" onclick="triggerUpload()" class="relative cursor-pointer group rounded-3xl border-2 border-dashed border-zinc-300 bg-white hover:border-zinc-400 hover:shadow-md transition-all p-12 text-center flex flex-col items-center justify-center min-h-[260px] overflow-hidden">
+          <div class="absolute top-1/2 left-8 right-8 h-[2px] bg-[#FF2E2E] shadow-[0_0_8px_#FF2E2E] opacity-50 z-10 pointer-events-none laser-pulse"></div>
+          <div class="w-16 h-16 rounded-full bg-zinc-50 flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-105">
+            <i data-lucide="upload-cloud" class="w-8 h-8 text-zinc-800"></i>
+          </div>
+          <div class="text-center z-10">
+            <h2 id="drop-title" class="text-xl font-extrabold text-zinc-950 mb-1">Drop your assets here</h2>
+            <p class="text-zinc-500 text-xs font-medium">PNG, JPEG, WEBP, GIF up to 50MB each</p>
+          </div>
+          <button type="button" class="mt-6 px-6 py-3 bg-zinc-950 text-white rounded-2xl font-bold text-sm hover:bg-zinc-900 active:scale-95 transition-all shadow-md z-10">Browse Files</button>
+        </div>
+
+        <!-- Active Conversion Queue Block -->
+        <div id="queue-section" class="space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-400 flex items-center space-x-2">
+              <span>Batch Queue</span>
+              <span id="queue-counter" class="bg-zinc-100 border border-zinc-200 text-zinc-700 text-[11px] px-2.5 py-0.5 rounded-full font-extrabold">0</span>
+            </h2>
+            <button onclick="clearQueue()" class="text-[11px] font-bold uppercase tracking-wider text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-xl transition flex items-center">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1.5"></i> Clear Queue
+            </button>
+          </div>
+          <div id="queue-list" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR: Dashboard Summary & Parameters Configuration -->
+      <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
+        
+        <!-- Parameters Configurations -->
+        <div class="border border-zinc-200 bg-white rounded-3xl p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <h3 class="font-extrabold text-zinc-900 text-sm uppercase tracking-wider flex items-center space-x-2">
+              <i data-lucide="settings" class="w-4 h-4 text-zinc-500"></i>
+              <span>Bulk Settings</span>
+            </h3>
+            <button onclick="toggleBulkPanel()" class="text-zinc-400 hover:text-zinc-600 p-1 rounded-lg transition">
+              <i data-lucide="chevron-up" id="bulk-toggle-icon" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div id="bulk-panel-content" class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Default Output Format</label>
+              <select id="bulk-format" onchange="updateBulkSettings()" class="w-full text-xs font-bold bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-xl px-3 py-2.5 focus:outline-none focus:border-zinc-400 cursor-pointer">
+                <option value="webp">WEBP (Suggested - Web Optimized)</option>
+                <option value="jpeg">JPEG (Universal Compatibility)</option>
+                <option value="png">PNG (Lossless High Quality)</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                <span>Default Quality</span>
+                <span id="bulk-quality-label" class="font-mono text-zinc-900 font-bold">80%</span>
+              </div>
+              <div class="flex items-center h-8">
+                <input type="range" id="bulk-quality" min="10" max="100" step="5" value="80" oninput="updateBulkSettings()" class="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-zinc-950">
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                <span>Scale Down Dimensions</span>
+                <span id="bulk-scale-label" class="font-mono text-zinc-900 font-bold">100%</span>
+              </div>
+              <div class="flex items-center h-8">
+                <input type="range" id="bulk-scale" min="10" max="100" step="5" value="100" oninput="updateBulkSettings()" class="w-full h-1 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-zinc-950">
+              </div>
+            </div>
+
+            <button onclick="applyBulkToQueue()" class="w-full mt-2 inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition border border-zinc-200">
+              Apply Settings to All Uploads
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Analysis Summary -->
+        <div class="border border-zinc-200 bg-white rounded-3xl p-6 shadow-sm space-y-5">
+          <h3 class="font-extrabold text-zinc-900 text-sm uppercase tracking-wider border-b border-zinc-100 pb-3 flex items-center space-x-2">
+            <i data-lucide="files" class="w-4 h-4 text-zinc-500"></i>
+            <span>Media Dashboard</span>
+          </h3>
+
+          <div id="dashboard-empty" class="py-6 text-center text-zinc-400 text-xs font-medium">
+            <i data-lucide="image" class="w-8 h-8 mx-auto mb-2 opacity-30 text-zinc-600"></i>
+            <p>Queue is empty.</p>
+            <p class="text-zinc-500 mt-1">Upload images to review metrics.</p>
+          </div>
+
+          <div id="dashboard-active" class="space-y-5 hidden">
+            <div class="grid grid-cols-2 gap-3 text-center text-xs">
+              <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200">
+                <span class="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Queue</span>
+                <span id="stat-total-loaded" class="text-sm font-bold text-zinc-900">0 loaded</span>
+              </div>
+              <div class="p-3 bg-zinc-50 rounded-2xl border border-zinc-200">
+                <span class="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Ready</span>
+                <span class="text-sm font-bold text-zinc-900 flex items-center justify-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                  <span id="stat-pending-count">0 pending</span>
+                </span>
+              </div>
+            </div>
+
+            <div id="savings-summary-box" class="bg-emerald-50 rounded-2xl border border-emerald-100 p-4 space-y-3 text-center hidden">
+              <h3 id="savings-bytes-label" class="text-3xl font-black text-zinc-950 font-mono tracking-tight">0 KB</h3>
+              <p id="savings-percent-label" class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Total Bandwidth Saved (0%)</p>
+            </div>
+
+            <div class="pt-2 space-y-3">
+              <button onclick="processAll()" id="process-all-btn" class="w-full bg-zinc-950 text-white hover:bg-zinc-900 rounded-2xl py-4 flex flex-col items-center justify-center gap-1.5 transition-all font-bold shadow-md">
+                <span class="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                  <i data-lucide="refresh-cw" id="process-all-icon" class="w-3.5 h-3.5"></i>
+                  <span id="process-all-text">Process All Assets</span>
+                </span>
+                <div class="flex items-center gap-1.5 text-[9px] font-bold text-zinc-400">GPU ACCELERATED CANVAS ENGINE</div>
+              </button>
+
+              <button onclick="downloadAllZip()" id="zip-btn" disabled class="w-full inline-flex items-center justify-center px-4 py-3 text-xs font-bold text-zinc-700 bg-zinc-100 border border-zinc-200 hover:bg-zinc-200 disabled:opacity-30 rounded-2xl transition">
+                <i data-lucide="folder-archive" class="w-4 h-4 mr-2 text-zinc-500"></i> Download All as ZIP
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Footer Bento Badge -->
+        <div class="bg-zinc-50 rounded-2xl p-4 border border-zinc-200 flex gap-3">
+          <i data-lucide="info" class="w-5 h-5 text-zinc-400 shrink-0 mt-0.5"></i>
+          <div class="text-[11px] text-zinc-500 leading-normal">
+            <span class="font-bold text-zinc-700 block mb-0.5">Privacy First Media System</span> 
+            All image compression is executed fully inside your browser's local sandbox memory. Absolutely no graphics, uploads, or private details ever leave your machine.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Visual Comparison Slider Modal Window -->
+  <div id="compare-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm hidden">
+    <div class="bg-white border border-zinc-200 text-zinc-850 rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between bg-zinc-50">
+        <div>
+          <h3 id="compare-title" class="font-extrabold text-zinc-950 text-base truncate max-w-md">Comparing Asset</h3>
+          <p class="text-xs text-zinc-500">Drag the vertical slider line to compare original (left) vs compression output (right)</p>
+        </div>
+        <button onclick="closeCompareModal()" class="text-zinc-400 hover:text-zinc-800 p-2 rounded-lg hover:bg-zinc-100 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-auto p-6 bg-zinc-50 flex items-center justify-center min-h-[300px]">
+        <div class="relative max-w-full aspect-video rounded-2xl overflow-hidden shadow-sm select-none border border-zinc-200 bg-white max-h-[50vh]">
+          <!-- Original Image (Background) -->
+          <img id="compare-img-original" src="" class="w-full h-full object-contain pointer-events-none" style="max-h: 50vh;">
+          <div id="compare-size-orig" class="absolute bottom-3 left-3 bg-white/90 border border-zinc-200 text-zinc-800 text-[10px] font-bold px-2.5 py-1 rounded-md z-10 pointer-events-none shadow-sm backdrop-blur-sm">Original</div>
+
+          <!-- Compressed Image (Foreground Layer with ClipPath tracking) -->
+          <div id="compare-clip-container" class="absolute inset-0 pointer-events-none overflow-hidden" style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);">
+            <img id="compare-img-compressed" src="" class="w-full h-full object-contain pointer-events-none" style="max-h: 50vh;">
+          </div>
+          <div id="compare-size-comp" class="absolute bottom-3 right-3 bg-zinc-950 text-white text-[10px] font-black px-2.5 py-1 rounded-md z-10 pointer-events-none shadow">Compressed</div>
+
+          <!-- Physical Split Slider Line -->
+          <div id="compare-slider-line" class="absolute top-0 bottom-0 w-0.5 bg-zinc-950 shadow-xl flex items-center justify-center pointer-events-none z-20" style="left: 50%;">
+            <div class="w-8 h-8 rounded-full bg-zinc-950 text-white shadow-md flex items-center justify-center pointer-events-none">
+              <i data-lucide="sliders" class="w-4 h-4 rotate-90"></i>
+            </div>
+          </div>
+
+          <!-- Input Slider Bar Interceptor -->
+          <input type="range" min="0" max="100" value="50" oninput="handleCompareSlider(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30">
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-t border-zinc-200 bg-zinc-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-4 text-xs">
+          <div>
+            <span class="text-zinc-400 block font-bold text-[9px] uppercase tracking-wider mb-0.5">Original Data</span>
+            <span id="modal-metric-orig" class="text-zinc-700 font-bold"></span>
+          </div>
+          <div class="text-zinc-200 text-lg hidden sm:block">|</div>
+          <div>
+            <span class="text-zinc-400 block font-bold text-[9px] uppercase tracking-wider mb-0.5">Optimized Target</span>
+            <span id="modal-metric-comp" class="text-emerald-700 font-bold"></span>
+          </div>
+          <div class="text-zinc-200 text-lg hidden sm:block">|</div>
+          <div>
+            <span class="text-zinc-400 block font-bold text-[9px] uppercase tracking-wider mb-0.5">Space Saved</span>
+            <span id="modal-metric-savings" class="text-emerald-800 font-black bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full font-mono"></span>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+          <button onclick="closeCompareModal()" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-zinc-800 bg-zinc-100 hover:bg-zinc-200 rounded-xl transition">Close</button>
+          <button id="modal-download-btn" onclick="" class="px-5 py-2 text-xs font-bold text-white bg-zinc-950 hover:bg-zinc-900 rounded-xl transition flex items-center shadow-md"><i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Download File</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Pure Application Engine JS Link -->
+  <script src="script.js"></script>
+</body>
+</html>
