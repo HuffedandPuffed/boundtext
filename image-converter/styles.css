@@ -9,6 +9,16 @@ body {
 }
 .hidden { display: none !important; }
 
+/* Completely hides the native browser upload button via external CSS to respect CSP rules */
+#file-input {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  z-index: -100 !important;
+}
+
 /* Sticky Header Bar */
 header {
   background-color: #000000;
@@ -54,9 +64,14 @@ header {
   border-radius: 12px;
   border: none;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: opacity 0.2s;
 }
 .btn-black:hover { opacity: 0.9; }
+
 .btn-white {
   background-color: #18181b;
   color: #F5E2B3;
@@ -71,6 +86,7 @@ header {
   transition: background-color 0.2s;
 }
 .btn-white:hover { background-color: #27272a; }
+
 .btn-white-compact {
   background-color: #18181b;
   color: #F5E2B3;
@@ -83,7 +99,7 @@ header {
 }
 .btn-white:disabled, .btn-black:disabled { opacity: 0.25; cursor: not-allowed; }
 
-/* Grid Structuring Panels */
+/* Grid Structuring Framework Layouts */
 main { max-width: 1200px; margin: 2rem auto 0 auto; padding: 0 1.5rem; }
 .app-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
 @media (min-width: 1024px) {
@@ -94,8 +110,10 @@ main { max-width: 1200px; margin: 2rem auto 0 auto; padding: 0 1.5rem; }
 
 .card-panel { background-color: #18181b; border: 1px solid #27272a; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; }
 
-/* Interactive Dropzone Card */
+/* Interactive Dropzone Card Component */
 .drop-box {
+  display: block;
+  width: 100%;
   border: 1px dashed #3f3f46;
   background-color: #18181b;
   border-radius: 20px;
@@ -104,10 +122,10 @@ main { max-width: 1200px; margin: 2rem auto 0 auto; padding: 0 1.5rem; }
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
 }
 .drop-box:hover { border-color: #C5A059; }
 .drop-icon-circle { width: 3.5rem; height: 3.5rem; background-color: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; border: 1px solid #3f3f46; }
-.drop-icon-circle svg { width: 1.75rem; height: 1.75rem; color: #F5E2B3; }
 .drop-box h2 { font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem; }
 .drop-specs { font-size: 0.75rem; color: #a1a1aa; font-weight: 500; margin-bottom: 1rem; }
 
@@ -120,7 +138,7 @@ main { max-width: 1200px; margin: 2rem auto 0 auto; padding: 0 1.5rem; }
 .pill-container { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; }
 .format-pill { background-color: #27272a; border: 1px solid #3f3f46; color: #a1a1aa; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
 
-/* Pipeline Queue Elements */
+/* Dynamic Queue Matrix Styles */
 #queue-section { margin-top: 2rem; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .panel-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #71717a; display: flex; align-items: center; gap: 0.5rem; }
@@ -147,7 +165,7 @@ main { max-width: 1200px; margin: 2rem auto 0 auto; padding: 0 1.5rem; }
 .input-wrapper label { font-size: 9px; font-weight: 700; color: #71717a; text-transform: uppercase; }
 .controls-grid select, .controls-grid input { width: 100%; font-size: 0.75rem; font-weight: 600; background-color: #18181b; border: 1px solid #3f3f46; border-radius: 8px; padding: 5px 8px; color: #ffffff; outline: none; }
 
-/* Metallic Gold Ranger Sliders */
+/* Metallic Control Sliders */
 input[type="range"] { width: 100%; height: 5px; background-color: #27272a; border-radius: 8px; appearance: none; cursor: pointer; margin-top: 8px; }
 input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #C5A059; }
 
@@ -158,7 +176,7 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; heigh
 .card-actions { display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #27272a; padding-top: 0.75rem; }
 .card-actions a { text-decoration: none; }
 
-/* Dashboard Sidebar Elements */
+/* Metrics Module Displays */
 .sidebar-head { font-size: 0.875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #ffffff; padding-bottom: 0.75rem; border-bottom: 1px solid #27272a; margin-bottom: 1rem; }
 .inputs-stack { display: flex; flex-direction: column; gap: 1rem; }
 .label-row { display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; color: #71717a; text-transform: uppercase; }
@@ -175,12 +193,12 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; heigh
 .savings-banner h3 { font-size: 1.5rem; font-weight: 900; font-family: monospace; color: #10b981; }
 .savings-banner p { font-size: 9px; font-weight: 700; color: #10b981; text-transform: uppercase; margin-top: 2px; }
 
-.btn-giant { width: 100%; background: linear-gradient(135deg, #F5E2B3 0%, #C5A059 50%, #8F6F30 100%); color: #000000; border: none; border-radius: 14px; padding: 0.85rem; font-weight: 800; font-size: 0.875rem; cursor: pointer; margin-bottom: 0.75rem; display: flex; flex-direction: column; align-items: center; }
+.btn-giant { width: 100%; background: linear-gradient(135deg, #F5E2B3 0%, #C5A059 50%, #8F6F30 100%); color: #000000; border: none; border-radius: 14px; padding: 0.85rem; font-weight: 800; font-size: 0.875rem; cursor: pointer; margin-bottom: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .btn-subtext { font-size: 9px; color: #332200; font-weight: 700; margin-top: 1px; }
-.notice-card { background-color: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 1rem; font-size: 11px; color: #a1a1aa; line-height: 1.4; }
+.notice-card { background-color: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 1rem; font-size: 11px; color: #a1a1aa; line-height: 1.4; text-align: left; }
 .notice-card strong { color: #ffffff; display: block; margin-bottom: 2px; }
 
-/* Visual Split Sliders Overlay Windows */
+/* Split View Visual Adjuster Overlay Windows */
 .modal-backdrop { position: fixed; inset: 0; z-index: 50; background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; }
 .modal-box { background-color: #18181b; border: 1px solid #27272a; border-radius: 20px; max-width: 52rem; width: 100%; display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; }
 .modal-head { padding: 1rem 1.25rem; border-bottom: 1px solid #27272a; display: flex; align-items: center; justify-content: space-between; background-color: #09090b; }
@@ -207,7 +225,3 @@ input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; heigh
 .metric-divider { color: #27272a; font-size: 1.15rem; align-self: center; }
 .savings-pill { background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 6px; border-radius: 6px; font-family: monospace; font-weight: 800; }
 .modal-foot-actions { display: flex; gap: 0.5rem; }
-
-/* Custom Floating Toast Indicators */
-.message-zone { position: fixed; top: 4.5rem; left: 50%; transform: translateX(-50%); z-index: 100; width: 100%; max-width: 26rem; padding: 0 1rem; }
-.toast-body { background-color: #18181b; color: #ffffff; border: 1px solid #C5A059; padding: 0.75rem 1rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); font-size: 0.75rem; font-weight: 700; text-align: center; }
