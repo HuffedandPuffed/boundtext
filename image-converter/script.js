@@ -4,7 +4,7 @@ let totalOriginalBytes = 0;
 let totalProcessedBytes = 0;
 let currentActiveCompareItem = null;
 
-// Target structural nodes inside the local file sandbox ecosystem directly
+// Target elements directly from the structural layout model
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const clearQueueBtn = document.getElementById('clear-queue-btn');
@@ -19,7 +19,7 @@ const closeModalBtn2 = document.getElementById('close-modal-btn-2');
 const compareSlider = document.getElementById('compare-slider');
 const queueList = document.getElementById('queue-list');
 
-// File ingestion loop listener interceptor
+// File selection hook router
 if (fileInput) {
   fileInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -29,7 +29,7 @@ if (fileInput) {
   });
 }
 
-// Drag & Drop event bindings hooks
+// Drag and drop parameters configuration hooks
 if (dropZone) {
   ['dragenter', 'dragover'].forEach(eventName => {
     dropZone.addEventListener(eventName, (e) => {
@@ -55,7 +55,7 @@ if (dropZone) {
   }, false);
 }
 
-// Sliders synchronization label updates loops settings panel controls
+// Sliders numeric synchronization handles
 const updateBulkSettings = () => {
   if (bulkQuality) document.getElementById('bulk-quality-label').innerText = bulkQuality.value + '%';
   if (bulkScale) document.getElementById('bulk-scale-label').innerText = bulkScale.value + '%';
@@ -76,7 +76,7 @@ if (compareSlider) {
   compareSlider.addEventListener('input', (e) => handleCompareSlider(e.target.value));
 }
 
-// Secure subrow modification inputs monitoring routing mapping architectures
+// Dynamic elements row event delegate mapper
 if (queueList) {
   queueList.addEventListener('change', (e) => {
     const target = e.target;
@@ -100,25 +100,23 @@ if (queueList) {
   });
 }
 
-if (window.lucide) { lucide.createIcons(); }
-
 function processIncomingFiles(fileList) {
   Array.from(fileList).forEach(file => {
-    if (!file.type.startsWith('image/')) {
-      alert(`Asset layout skip: "${file.name}" is not a valid image configuration format blueprint.`);
-      return;
-    }
+    if (!file.type.startsWith('image/')) return;
+
+    const id = 'asset_' + Math.random().toString(36).substr(2, 9);
+    const previewUrl = URL.createObjectURL(file);
 
     const item = {
-      id: 'asset_' + Math.random().toString(36).substr(2, 9),
+      id: id,
       file: file,
       name: file.name,
       originalSize: file.size,
-      format: document.getElementById('bulk-format').value,
-      quality: parseInt(document.getElementById('bulk-quality').value),
-      scale: parseInt(document.getElementById('bulk-scale').value),
+      format: document.getElementById('bulk-format')?.value || 'webp',
+      quality: parseInt(document.getElementById('bulk-quality')?.value || '80'),
+      scale: parseInt(document.getElementById('bulk-scale')?.value || '100'),
       status: 'pending',
-      previewUrl: URL.createObjectURL(file),
+      previewUrl: previewUrl,
       processedBlob: null,
       processedUrl: null,
       processedSize: 0,
@@ -126,15 +124,22 @@ function processIncomingFiles(fileList) {
       height: 0
     };
 
+    // Push right onto the workspace collection immediately so the UI populates cards instantly
+    queue.push(item);
+    renderQueue();
+    updateDashboardUI();
+
+    // Try extracting real properties in background safely without blocking queue painting pipelines
     const img = new Image();
     img.onload = () => {
       item.width = img.naturalWidth;
       item.height = img.naturalHeight;
-      queue.push(item);
-      renderQueue();
-      updateDashboardUI();
+      const specsEl = document.getElementById(`specs-${item.id}`);
+      if (specsEl) {
+        specsEl.innerText = `${item.width}x${item.height}px | ${(item.originalSize / 1024).toFixed(1)} KB`;
+      }
     };
-    img.src = item.previewUrl;
+    img.src = previewUrl;
   });
 }
 
@@ -179,6 +184,7 @@ function renderQueue() {
   queueSection.classList.remove('hidden');
   queueList.innerHTML = queue.map(item => {
     const sizeKB = (item.originalSize / 1024).toFixed(1) + ' KB';
+    const specLabel = item.width > 0 ? `${item.width}x${item.height}px | ${sizeKB}` : `Processing Specs... | ${sizeKB}`;
     
     return `
       <div class="queue-card" id="card-${item.id}">
@@ -191,7 +197,7 @@ function renderQueue() {
           <div class="meta-area">
             <div class="meta-top">
               <span class="meta-filename" title="${item.name}">${item.name}</span>
-              <span class="meta-specs">${item.width}x${item.height}px | ${sizeKB}</span>
+              <span class="meta-specs" id="specs-${item.id}">${specLabel}</span>
             </div>
             
             <div class="controls-grid" id="controls-${item.id}">
@@ -229,8 +235,6 @@ function renderQueue() {
   queue.forEach(item => {
     if (item.status === 'done') { finalizeItemUI(item); }
   });
-  
-  if (window.lucide) { lucide.createIcons(); }
 }
 
 async function compressImage(item) {
@@ -245,8 +249,8 @@ async function compressImage(item) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const scaleFactor = item.scale / 100;
-      const targetWidth = Math.max(1, Math.round(img.naturalWidth * scaleFactor));
-      const targetHeight = Math.max(1, Math.round(img.naturalHeight * scaleFactor));
+      const targetWidth = Math.max(1, Math.round((img.naturalWidth || 800) * scaleFactor));
+      const targetHeight = Math.max(1, Math.round((img.naturalHeight || 600) * scaleFactor));
       
       canvas.width = targetWidth;
       canvas.height = targetHeight;
@@ -286,7 +290,7 @@ function finalizeItemUI(item) {
   const statusIcon = document.getElementById(`status-icon-${item.id}`);
   if (statusIcon) {
     statusIcon.className = "indicator-icon";
-    statusIcon.innerHTML = `<i data-lucide="check" style="width:12px; height:12px; color:#000;"></i>`;
+    statusIcon.innerHTML = `✓`;
   }
   
   const compressedKB = item.processedSize / 1024;
@@ -310,7 +314,6 @@ function finalizeItemUI(item) {
       </div>
     `;
   }
-  if (window.lucide) { lucide.createIcons(); }
 }
 
 async function processAll() {
@@ -376,7 +379,7 @@ function updateDashboardUI() {
     const pct = Math.round((savedBytes / totalOriginalBytes) * 100);
     document.getElementById('savings-percent-label').innerText = `Total Bandwidth Saved (${pct}%)`;
   } else {
-    savingsBox.classList.add('hidden');
+    savingsBox.className = "savings-banner hidden";
   }
 }
 
