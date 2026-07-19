@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bound Text Images - Local Media Sandbox</title>
   
-  <!-- Pointing to the fresh new filename forces the network to drop the old unstyled cache completely -->
-  <link rel="stylesheet" href="app-theme.css">
+  <link rel="stylesheet" href="./styles.css">
   
   <!-- JSZip Library for Bulk Downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -20,24 +19,25 @@
     <div class="header-container">
       <div class="brand-section">
         <div class="logo-container">
-          <img src="../assets/bt logo tiny.webp" alt="Bound Text Monogram Logo" width="38" height="38">
+          <img src="bt logo tiny.webp" alt="Bound Text Monogram Logo" width="38" height="38">
         </div>
         <div class="title-area">
           <h1>Bound Text Images</h1>
-          <span>Local Media Sandbox</span>
+          <span class="gold-subtitle">Local Media Sandbox</span>
         </div>
       </div>
       
       <div class="header-actions">
         <span class="plan-badge">Free Plan</span>
-        <button onclick="triggerUpload()" class="btn-black">
-          <i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> Upload Files
-        </button>
+        <!-- Turned into a native label tracker to bypass JavaScript deadlocks entirely -->
+        <label for="file-input" id="nav-upload-btn" class="btn-black" style="cursor: pointer;">
+          Upload Files
+        </label>
       </div>
     </div>
   </header>
 
-  <div id="global-message-zone" style="position: fixed; top: 4.5rem; left: 50%; transform: translateX(-50%); z-index: 100; width: 100%; max-width: 26rem; padding: 0 1rem;" class="hidden"></div>
+  <div id="global-message-zone" class="message-zone hidden"></div>
 
   <!-- Main Grid Workspace -->
   <main>
@@ -45,17 +45,18 @@
       
       <!-- Workspace Left Panel: Dropzone & Item Queue List -->
       <div class="left-panel">
-        <input type="file" id="file-input" multiple accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+        <!-- Kept active in layout tree but visually invisible to satisfy browser security routines -->
+        <input type="file" id="file-input" multiple accept="image/*" style="position: absolute; opacity: 0; width: 1px; height: 1px; z-index: -1;">
 
-        <!-- Interactive Drag & Drop Box Area -->
-        <div id="drop-zone" onclick="triggerUpload()" class="drop-box">
+        <!-- Converted container card into a native label context link to open file engine natively -->
+        <label id="drop-zone" for="file-input" class="drop-box" style="display: block;">
           <div class="laser-line"></div>
           <div class="drop-icon-circle">
             <i data-lucide="upload-cloud"></i>
           </div>
           <h2>Drop your assets here</h2>
-          <p style="margin-bottom: 1rem;">PNG, JPEG, WEBP, GIF up to 50MB each</p>
-          <button type="button" class="btn-black">Browse Files</button>
+          <p class="drop-specs">PNG, JPEG, WEBP, GIF up to 50MB each</p>
+          <span class="btn-black" style="display: inline-block;">Browse Files</span>
           
           <div class="pill-container">
             <span class="format-pill">WebP</span>
@@ -63,18 +64,16 @@
             <span class="format-pill">JPEG</span>
             <span class="format-pill">GIF</span>
           </div>
-        </div>
+        </label>
 
         <!-- Dynamic Output Items Queue List Block -->
-        <div id="queue-section" class="hidden" style="margin-top: 2rem;">
+        <div id="queue-section" class="hidden">
           <div class="panel-header">
             <h2 class="panel-title">
               <span>Batch Queue</span>
               <span id="queue-counter" class="counter-badge">0</span>
             </h2>
-            <button onclick="clearQueue()" class="btn-action-danger">
-              <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i> Clear Queue
-            </button>
+            <button id="clear-queue-btn" class="btn-action-danger">Clear Queue</button>
           </div>
           <div id="queue-list"></div>
         </div>
@@ -85,14 +84,12 @@
         
         <!-- Parameter Settings Bento Panel Card Block -->
         <div class="card-panel">
-          <h3 class="sidebar-head">
-            <i data-lucide="settings" style="width: 15px; height: 15px; color:#C5A059;"></i> Bulk Settings
-          </h3>
+          <h3 class="sidebar-head">Bulk Settings</h3>
 
           <div class="inputs-stack">
             <div class="input-wrapper">
               <label>Default Output Format</label>
-              <select id="bulk-format" onchange="updateBulkSettings()">
+              <select id="bulk-format">
                 <option value="webp">WEBP (Suggested - Web Optimized)</option>
                 <option value="jpeg">JPEG (Universal Compatibility)</option>
                 <option value="png">PNG (Lossless High Quality)</option>
@@ -100,22 +97,22 @@
             </div>
 
             <div class="input-wrapper">
-              <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; color: #71717a; text-transform: uppercase;">
+              <div class="label-row">
                 <span>Default Quality</span>
-                <span id="bulk-quality-label" style="color: #C5A059; font-weight:800;">80%</span>
+                <span id="bulk-quality-label" class="gold-text">80%</span>
               </div>
-              <input type="range" id="bulk-quality" min="10" max="100" step="5" value="80" oninput="updateBulkSettings()">
+              <input type="range" id="bulk-quality" min="10" max="100" step="5" value="80">
             </div>
 
             <div class="input-wrapper">
-              <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; color: #71717a; text-transform: uppercase;">
+              <div class="label-row">
                 <span>Scale Dimensions</span>
-                <span id="bulk-scale-label" style="color: #C5A059; font-weight:800;">100%</span>
+                <span id="bulk-scale-label" class="gold-text">100%</span>
               </div>
-              <input type="range" id="bulk-scale" min="10" max="100" step="5" value="100" oninput="updateBulkSettings()">
+              <input type="range" id="bulk-scale" min="10" max="100" step="5" value="100">
             </div>
 
-            <button onclick="applyBulkToQueue()" class="btn-white" style="width: 100%; padding: 0.7rem; margin-top: 4px;">
+            <button id="apply-bulk-btn" class="btn-white">
               Apply Settings to All Uploads
             </button>
           </div>
@@ -123,14 +120,11 @@
 
         <!-- Metric Dashboard Analysis Card Block -->
         <div class="card-panel">
-          <h3 class="sidebar-head">
-            <i data-lucide="files" style="width: 15px; height: 15px; color:#C5A059;"></i> Media Dashboard
-          </h3>
+          <h3 class="sidebar-head">Media Dashboard</h3>
 
-          <div id="dashboard-empty" style="text-align: center; color: #71717a; padding: 1.25rem 0; font-size: 0.85rem; font-weight:500;">
-            <i data-lucide="image" style="width: 1.75rem; height: 1.75rem; margin: 0 auto 0.5rem auto; display: block; opacity: 0.35;"></i>
+          <div id="dashboard-empty" class="dash-empty-state">
             <p>Queue is empty.</p>
-            <p style="font-size: 11px; color:#3f3f46; margin-top: 1px;">Upload images to review metrics.</p>
+            <p class="dash-sub-empty">Upload images to review metrics.</p>
           </div>
 
           <div id="dashboard-active" class="hidden">
@@ -150,20 +144,19 @@
               <p id="savings-percent-label">Total Bandwidth Saved (0%)</p>
             </div>
 
-            <button onclick="processAll()" id="process-all-btn" class="btn-giant">
+            <button id="process-all-btn" class="btn-giant">
               <span id="process-all-text">Process All Assets</span>
-              <div>GPU ACCELERATED CANVAS ENGINE</div>
+              <span class="btn-subtext">GPU ACCELERATED CANVAS ENGINE</span>
             </button>
 
-            <button onclick="downloadAllZip()" id="zip-btn" disabled class="btn-white" style="width: 100%; padding: 0.7rem;">
-              <i data-lucide="folder-archive" style="width: 13px; height: 13px; margin-right: 4px; color:#C5A059;"></i> Download All as ZIP
+            <button id="zip-btn" disabled class="btn-white">
+              Download All as ZIP
             </button>
           </div>
         </div>
 
         <!-- Privacy First Badge -->
         <div class="notice-card">
-          <i data-lucide="info" style="width: 16px; height: 16px; flex-shrink: 0; color: #71717a; margin-top:1px;"></i>
           <div>
             <strong>Privacy First Media System</strong> 
             All image compression is executed fully inside your browser's local sandbox memory. Absolutely no graphics, uploads, or private details ever leave your machine.
@@ -179,62 +172,57 @@
     <div class="modal-box">
       <div class="modal-head">
         <div>
-          <h3 id="compare-title">Comparing Asset</h3>
+          <h3>Comparing Asset</h3>
           <p>Drag the slider screen split line left/right to audit precision compression visuals</p>
         </div>
-        <button onclick="closeCompareModal()" class="btn-white" style="padding: 5px 8px; border-radius: 6px;">
-          <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-        </button>
+        <button id="close-modal-btn-1" class="btn-white-compact">X</button>
       </div>
 
       <div class="modal-view">
         <div class="slider-frame">
-          <img id="compare-img-original" src="">
-          <div id="compare-size-orig" class="tag-orig">Original</div>
+          <img id="compare-img-original" src="" alt="Original preview">
+          <div class="tag-orig">Original</div>
 
-          <div id="compare-clip-container" class="clip-view" style="clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);">
-            <img id="compare-img-compressed" src="">
+          <div id="compare-clip-container" class="clip-view">
+            <img id="compare-img-compressed" src="" alt="Compressed preview">
           </div>
-          <div id="compare-size-comp" class="tag-comp">Compressed</div>
+          <div class="tag-comp">Compressed</div>
 
-          <div id="compare-slider-line" class="slider-divider-line" style="left: 50%;">
-            <div class="slider-handle-knob">
-              <i data-lucide="sliders" style="width: 12px; height: 12px; transform: rotate(90deg);"></i>
-            </div>
+          <div id="compare-slider-line" class="slider-divider-line">
+            <div class="slider-handle-knob">||</div>
           </div>
 
-          <input type="range" min="0" max="100" value="50" oninput="handleCompareSlider(this.value)" class="range-interceptor">
+          <input type="range" id="compare-slider" min="0" max="100" value="50" class="range-interceptor">
         </div>
       </div>
 
       <div class="modal-foot">
         <div class="modal-metrics">
-          <div>
+          <div class="metric-segment">
             <span>Original Data</span>
             <span id="modal-metric-orig">-</span>
           </div>
-          <div style="color: #27272a; font-size: 1.15rem; align-self: center;">|</div>
-          <div>
+          <div class="metric-divider">|</div>
+          <div class="metric-segment">
             <span>Optimized Target</span>
             <span id="modal-metric-comp">-</span>
           </div>
-          <div style="color: #27272a; font-size: 1.15rem; align-self: center;">|</div>
-          <div>
+          <div class="metric-divider">|</div>
+          <div class="metric-segment">
             <span>Space Saved</span>
-            <span id="modal-metric-savings" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 2px 6px; border-radius: 6px; font-family:monospace; font-weight:800;">-</span>
+            <span id="modal-metric-savings" class="savings-pill">-</span>
           </div>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; width: 100%; justify-content: flex-end;">
-          <button onclick="closeCompareModal()" class="btn-white">Close</button>
-          <button id="modal-download-btn" onclick="" class="btn-black">
-            <i data-lucide="download" style="width:13px; height:13px;"></i> Download File
-          </button>
+        <div class="modal-foot-actions">
+          <button id="close-modal-btn-2" class="btn-white">Close</button>
+          <button id="modal-download-btn" class="btn-black">Download File</button>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Standard root inclusion script module for native Vite tracking compilation functionality -->
+  <script type="module" src="./script.js"></script>
 </body>
 </html>
