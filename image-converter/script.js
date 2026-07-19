@@ -4,7 +4,7 @@ let totalOriginalBytes = 0;
 let totalProcessedBytes = 0;
 let currentActiveCompareItem = null;
 
-// Target DOM nodes directly
+// Target structural nodes inside the local file sandbox ecosystem directly
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const clearQueueBtn = document.getElementById('clear-queue-btn');
@@ -19,7 +19,7 @@ const closeModalBtn2 = document.getElementById('close-modal-btn-2');
 const compareSlider = document.getElementById('compare-slider');
 const queueList = document.getElementById('queue-list');
 
-// File ingestion pipeline routing wire
+// File ingestion loop listener interceptor
 if (fileInput) {
   fileInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -29,7 +29,7 @@ if (fileInput) {
   });
 }
 
-// Drag & Drop Ingestion System Actions Mapping
+// Drag & Drop event bindings hooks
 if (dropZone) {
   ['dragenter', 'dragover'].forEach(eventName => {
     dropZone.addEventListener(eventName, (e) => {
@@ -55,7 +55,7 @@ if (dropZone) {
   }, false);
 }
 
-// Sidebar status metric controllers update binds
+// Sliders synchronization label updates loops settings panel controls
 const updateBulkSettings = () => {
   if (bulkQuality) document.getElementById('bulk-quality-label').innerText = bulkQuality.value + '%';
   if (bulkScale) document.getElementById('bulk-scale-label').innerText = bulkScale.value + '%';
@@ -76,7 +76,7 @@ if (compareSlider) {
   compareSlider.addEventListener('input', (e) => handleCompareSlider(e.target.value));
 }
 
-// Event delegation array router for subrow changes
+// Secure subrow modification inputs monitoring routing mapping architectures
 if (queueList) {
   queueList.addEventListener('change', (e) => {
     const target = e.target;
@@ -105,7 +105,7 @@ if (window.lucide) { lucide.createIcons(); }
 function processIncomingFiles(fileList) {
   Array.from(fileList).forEach(file => {
     if (!file.type.startsWith('image/')) {
-      alert(`Format skip error: "${file.name}" is not a valid media type.`);
+      alert(`Asset layout skip: "${file.name}" is not a valid image configuration format blueprint.`);
       return;
     }
 
