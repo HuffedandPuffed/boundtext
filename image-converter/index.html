@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bound Text Images - Local Media Sandbox</title>
   
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="styles.css?v=pure-static">
   
   <!-- JSZip Library for Bulk Downloads -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -19,7 +19,8 @@
     <div class="header-container">
       <div class="brand-section">
         <div class="logo-container">
-          <img src="bt logo tiny.webp" alt="Bound Text Monogram Logo" width="38" height="38">
+          <!-- Climbs one level up out of the folder to grab your root brand logo instantly -->
+          <img src="../bt logo tiny.webp" alt="Bound Text Monogram Logo" width="38" height="38">
         </div>
         <div class="title-area">
           <h1>Bound Text Images</h1>
@@ -29,8 +30,8 @@
       
       <div class="header-actions">
         <span class="plan-badge">Free Plan</span>
-        <!-- Turned into a native label tracker to bypass JavaScript deadlocks entirely -->
-        <label for="file-input" id="nav-upload-btn" class="btn-black" style="cursor: pointer;">
+        <!-- Native label bypasses all script delays to open the file window immediately -->
+        <label for="file-input" class="btn-black" style="cursor: pointer;">
           Upload Files
         </label>
       </div>
@@ -45,10 +46,9 @@
       
       <!-- Workspace Left Panel: Dropzone & Item Queue List -->
       <div class="left-panel">
-        <!-- Kept active in layout tree but visually invisible to satisfy browser security routines -->
         <input type="file" id="file-input" multiple accept="image/*" style="position: absolute; opacity: 0; width: 1px; height: 1px; z-index: -1;">
 
-        <!-- Converted container card into a native label context link to open file engine natively -->
+        <!-- Interactive Drag & Drop Box Area linked natively to input -->
         <label id="drop-zone" for="file-input" class="drop-box" style="display: block;">
           <div class="laser-line"></div>
           <div class="drop-icon-circle">
@@ -222,7 +222,6 @@
     </div>
   </div>
 
-  <!-- Standard root inclusion script module for native Vite tracking compilation functionality -->
-  <script type="module" src="./script.js"></script>
+  <script src="script.js?v=pure-static"></script>
 </body>
 </html>
