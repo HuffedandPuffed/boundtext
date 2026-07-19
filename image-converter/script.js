@@ -77,7 +77,7 @@ if (compareSlider) {
   compareSlider.addEventListener('input', (e) => handleCompareSlider(e.target.value));
 }
 
-// Dynamic elements row event delegate mapper
+// Dynamic elements row event delegate mapper handling configuration shifts, splits, and item deletions
 if (queueList) {
   queueList.addEventListener('change', (e) => {
     const target = e.target;
@@ -97,6 +97,13 @@ if (queueList) {
     const auditBtn = e.target.closest('.btn-audit-trigger');
     if (auditBtn) {
       launchVisualAuditModal(auditBtn.dataset.id);
+      return;
+    }
+
+    const deleteBtn = e.target.closest('.btn-delete-item');
+    if (deleteBtn) {
+      deleteItemFromQueue(deleteBtn.dataset.id);
+      return;
     }
   });
 }
@@ -186,7 +193,6 @@ function renderQueue() {
 
   queueSection.classList.remove('hidden');
   
-  /* Creates a shallow copy and reverses it on the fly to render the newest file at the very top */
   queueList.innerHTML = [...queue].reverse().map(item => {
     const sizeKB = (item.originalSize / 1024).toFixed(1) + ' KB';
     const specLabel = item.width > 0 ? `${item.width}x${item.height}px | ${sizeKB}` : `Processing Specs... | ${sizeKB}`;
@@ -203,6 +209,8 @@ function renderQueue() {
             <div class="meta-top">
               <span class="meta-filename" title="${item.name}">${item.name}</span>
               <span class="meta-specs" id="specs-${item.id}">${specLabel}</span>
+              <!-- Added a secure programmatic removal node inside the flex alignment header -->
+              <button data-id="${item.id}" class="btn-action-danger btn-delete-item">Remove</button>
             </div>
             
             <div class="controls-grid" id="controls-${item.id}">
@@ -240,6 +248,18 @@ function renderQueue() {
   queue.forEach(item => {
     if (item.status === 'done') { finalizeItemUI(item); }
   });
+}
+
+// Programmatic single asset destruction logic handler
+function deleteItemFromQueue(id) {
+  if (isProcessingActive) {
+    showBannerAlert("Cannot remove assets while processing run sequence is active.");
+    return;
+  }
+  
+  queue = queue.filter(item => item.id !== id);
+  renderQueue();
+  updateDashboardUI();
 }
 
 async function compressImage(item) {
