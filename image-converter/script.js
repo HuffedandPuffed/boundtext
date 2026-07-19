@@ -3,6 +3,7 @@ let queue = [];
 let totalOriginalBytes = 0;
 let totalProcessedBytes = 0;
 let currentActiveCompareItem = null;
+let isProcessingActive = false;
 
 // Target elements directly from the structural layout model
 const dropZone = document.getElementById('drop-zone');
@@ -106,7 +107,6 @@ function processIncomingFiles(fileList) {
 
     const id = 'asset_' + Math.random().toString(36).substr(2, 9);
     
-    // Converted to a FileReader string loop to completely avoid Blob blocks
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
@@ -243,41 +243,51 @@ function renderQueue() {
 async function compressImage(item) {
   return new Promise((resolve) => {
     item.status = 'processing';
-    document.getElementById(`controls-${item.id}`).classList.add('hidden');
-    document.getElementById(`progress-wrapper-${item.id}`).classList.remove('hidden');
-    document.getElementById('bar-' + item.id).style.width = '45%';
+    const controls = document.getElementById(`controls-${item.id}`);
+    const progress = document.getElementById(`progress-wrapper-${item.id}`);
+    const bar = document.getElementById('bar-' + item.id);
+    
+    if (controls) controls.classList.add('hidden');
+    if (progress) progress.classList.remove('hidden');
+    if (bar) bar.style.width = '45%';
     
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const scaleFactor = item.scale / 100;
-      const targetWidth = Math.max(1, Math.round((img.naturalWidth || 800) * scaleFactor));
-      const targetHeight = Math.max(1, Math.round((img.naturalHeight || 600) * scaleFactor));
-      
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-      
-      let mimeType = 'image/webp';
-      if (item.format === 'jpeg') mimeType = 'image/jpeg';
-      if (item.format === 'png') mimeType = 'image/png';
-      
-      const encoderQuality = item.quality / 100;
-      document.getElementById('bar-' + item.id).style.width = '80%';
-      
-      // canvas.toDataURL bypasses blob generation barriers instantly
-      const dataUrl = canvas.toDataURL(mimeType, encoderQuality);
-      
-      // Compute sizing metric targets precisely out of the string context lengths
-      const stringLength = dataUrl.split(',')[1].length;
-      item.processedSize = Math.round(stringLength * 0.75);
-      item.processedUrl = dataUrl;
-      item.status = 'done';
-      
-      document.getElementById('bar-' + item.id).style.width = '100%';
-      finalizeItemUI(item);
-      resolve();
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const scaleFactor = item.scale / 100;
+        const targetWidth = Math.max(1, Math.round((img.naturalWidth || 800) * scaleFactor));
+        const targetHeight = Math.max(1, Math.round((img.naturalHeight || 600) * scaleFactor));
+        
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        
+        let mimeType = 'image/webp';
+        if (item.format === 'jpeg') mimeType = 'image/jpeg';
+        if (item.format === 'png') mimeType = 'image/png';
+        
+        const encoderQuality = item.quality / 100;
+        if (bar) bar.style.width = '80%';
+        
+        const dataUrl = canvas.toDataURL(mimeType, encoderQuality);
+        
+        let stringLength = 0;
+        if (dataUrl && dataUrl.includes(',')) {
+          stringLength = dataUrl.split(',')[1].length;
+        }
+        item.processedSize = Math.round(stringLength * 0.75) || item.originalSize;
+        item.processedUrl = dataUrl;
+        item.status = 'done';
+        
+        if (bar) bar.style.width = '100%';
+        finalizeItemUI(item);
+      } catch (err) {
+        item.status = 'error';
+      } finally {
+        resolve();
+      }
     };
     img.onerror = () => { item.status = 'error'; resolve(); };
     img.src = item.previewUrl;
@@ -318,22 +328,21 @@ function finalizeItemUI(item) {
 }
 
 async function processAll() {
-  if (queue.length === 0) return;
-  const processBtn = document.getElementById('process-all-btn');
-  const txt = document.getElementById('process-all-text');
+  if (queue.length === 0 || isProcessingActive) return;
   
-  processBtn.disabled = true;
-  txt.innerText = "Processing Assets Engine Live...";
+  isProcessingActive = true;
+  updateDashboardUI();
   
-  for (let item of queue) {
-    if (item.status === 'pending') {
-      await compressImage(item);
+  // Scans the active array dynamically to process remaining files sequentially
+  for (let i = 0; i < queue.length; i++) {
+    if (queue[i].status === 'pending') {
+      await compressImage(queue[i]);
       updateDashboardUI();
     }
   }
   
-  txt.innerText = "Process Run Cycle Completed";
-  if (zipBtn) zipBtn.disabled = false;
+  isProcessingActive = false;
+  updateDashboardUI();
   showBannerAlert("Local batch compression complete.");
 }
 
@@ -349,11 +358,27 @@ function updateDashboardUI() {
   const activeDash = document.getElementById('dashboard-active');
   
   if (loadedCount > 0) {
-    emptyDash.classList.add('hidden');
-    activeDash.classList.remove('hidden');
+    if (emptyDash) emptyDash.classList.add('hidden');
+    if (activeDash) activeDash.classList.remove('hidden');
   } else {
-    emptyDash.classList.remove('hidden');
-    activeDash.classList.add('hidden');
+    if (emptyDash) emptyDash.classList.remove('hidden');
+    if (activeDash) activeDash.classList.add('hidden');
+  }
+
+  // Handle giant button control state toggles dynamically based on running threads
+  const processBtn = document.getElementById('process-all-btn');
+  const txt = document.getElementById('process-all-text');
+  if (processBtn && txt) {
+    if (isProcessingActive) {
+      processBtn.disabled = true;
+      txt.innerText = "Processing Assets Engine Live...";
+    } else if (pendingCount > 0) {
+      processBtn.disabled = false;
+      txt.innerText = "Process Remaining Assets";
+    } else {
+      processBtn.disabled = true;
+      txt.innerText = "Process Run Cycle Completed";
+    }
   }
 
   totalOriginalBytes = 0;
@@ -370,7 +395,7 @@ function updateDashboardUI() {
 
   const savingsBox = document.getElementById('savings-summary-box');
   if (doneItems > 0 && totalOriginalBytes > totalProcessedBytes) {
-    savingsBox.classList.remove('hidden');
+    if (savingsBox) savingsBox.classList.remove('hidden');
     const savedBytes = totalOriginalBytes - totalProcessedBytes;
     if (savedBytes > 1024 * 1024) {
       document.getElementById('savings-bytes-label').innerText = (savedBytes / (1024 * 1024)).toFixed(2) + ' MB';
@@ -379,8 +404,10 @@ function updateDashboardUI() {
     }
     const pct = Math.round((savedBytes / totalOriginalBytes) * 100);
     document.getElementById('savings-percent-label').innerText = `Total Bandwidth Saved (${pct}%)`;
+    if (zipBtn) zipBtn.disabled = false;
   } else {
     if (savingsBox) savingsBox.classList.add('hidden');
+    if (zipBtn) zipBtn.disabled = true;
   }
 }
 
@@ -393,7 +420,6 @@ function downloadAllZip() {
     if (item.status === 'done' && item.processedUrl) {
       const cleanName = item.name.split('.')[0];
       const base64Data = item.processedUrl.split(',')[1];
-      // Compiles directly from data string parameters
       zip.file(`${cleanName}_optimized.${item.format}`, base64Data, { base64: true });
       addedCount++;
     }
@@ -401,12 +427,16 @@ function downloadAllZip() {
   
   if (addedCount === 0) return;
   
-  // Package output streams generated directly inside text channels
-  zip.generateAsync({ type: 'base64' }).then((base64String) => {
+  // Uses a binary Blob download to safely navigate past strict server CSP policies
+  zip.generateAsync({ type: 'blob' }).then((content) => {
     const link = document.createElement('a');
-    link.href = 'data:application/zip;base64,' + base64String;
+    const url = URL.createObjectURL(content);
+    link.href = url;
     link.download = `boundtext_optimized_batch_${Date.now()}.zip`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   });
 }
 
@@ -414,9 +444,7 @@ function clearQueue() {
   queue = [];
   totalOriginalBytes = 0;
   totalProcessedBytes = 0;
-  document.getElementById('process-all-btn').disabled = false;
-  document.getElementById('process-all-text').innerText = "Process All Assets";
-  if (zipBtn) zipBtn.disabled = true;
+  isProcessingActive = false;
   renderQueue();
   updateDashboardUI();
   showBannerAlert("Queue cleared down completely.");
