@@ -1,61 +1,111 @@
-// Global App State Workspace Storage Queue
+// Global Workspace Storage Arrays
 let queue = [];
 let totalOriginalBytes = 0;
 let totalProcessedBytes = 0;
+let currentActiveCompareItem = null;
 
-// Initialize Drag & Drop Interceptors once DOM finishes painting
-document.addEventListener('DOMContentLoaded', () => {
-  const dropZone = document.getElementById('drop-zone');
-  
-  if (dropZone) {
-    ['dragenter', 'dragover'].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.style.borderColor = '#C5A059';
-        dropZone.style.backgroundColor = '#18181b';
-      }, false);
-    });
+// Target DOM nodes directly
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const clearQueueBtn = document.getElementById('clear-queue-btn');
+const bulkFormat = document.getElementById('bulk-format');
+const bulkQuality = document.getElementById('bulk-quality');
+const bulkScale = document.getElementById('bulk-scale');
+const applyBulkBtn = document.getElementById('apply-bulk-btn');
+const processAllBtn = document.getElementById('process-all-btn');
+const zipBtn = document.getElementById('zip-btn');
+const closeModalBtn1 = document.getElementById('close-modal-btn-1');
+const closeModalBtn2 = document.getElementById('close-modal-btn-2');
+const compareSlider = document.getElementById('compare-slider');
+const queueList = document.getElementById('queue-list');
 
-    ['dragleave', 'drop'].forEach(eventName => {
-      dropZone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropZone.style.borderColor = '#3f3f46';
-        dropZone.style.backgroundColor = '#18181b';
-      }, false);
-    });
+// File ingestion pipeline routing wire
+if (fileInput) {
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processIncomingFiles(e.target.files);
+      e.target.value = ''; 
+    }
+  });
+}
 
-    dropZone.addEventListener('drop', (e) => {
-      const dt = e.dataTransfer;
-      if (dt && dt.files.length > 0) {
-        processIncomingFiles(dt.files);
-      }
+// Drag & Drop Ingestion System Actions Mapping
+if (dropZone) {
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.borderColor = '#C5A059';
     }, false);
-  }
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.borderColor = '#3f3f46';
+    }, false);
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    if (dt && dt.files.length > 0) {
+      processIncomingFiles(dt.files);
+    }
+  }, false);
+}
+
+// Sidebar status metric controllers update binds
+const updateBulkSettings = () => {
+  if (bulkQuality) document.getElementById('bulk-quality-label').innerText = bulkQuality.value + '%';
+  if (bulkScale) document.getElementById('bulk-scale-label').innerText = bulkScale.value + '%';
+};
+
+if (bulkFormat) bulkFormat.addEventListener('change', updateBulkSettings);
+if (bulkQuality) bulkQuality.addEventListener('input', updateBulkSettings);
+if (bulkScale) bulkScale.addEventListener('input', updateBulkSettings);
+
+if (applyBulkBtn) applyBulkBtn.addEventListener('click', applyBulkToQueue);
+if (clearQueueBtn) clearQueueBtn.addEventListener('click', clearQueue);
+if (processAllBtn) processAllBtn.addEventListener('click', processAll);
+if (zipBtn) zipBtn.addEventListener('click', downloadAllZip);
+
+if (closeModalBtn1) closeModalBtn1.addEventListener('click', closeCompareModal);
+if (closeModalBtn2) closeModalBtn2.addEventListener('click', closeCompareModal);
+if (compareSlider) {
+  compareSlider.addEventListener('input', (e) => handleCompareSlider(e.target.value));
+}
+
+// Event delegation array router for subrow changes
+if (queueList) {
+  queueList.addEventListener('change', (e) => {
+    const target = e.target;
+    const id = target.dataset.id;
+    if (!id) return;
+
+    if (target.classList.contains('item-format')) {
+      updateItemSettings(id, 'format', target.value);
+    } else if (target.classList.contains('item-quality')) {
+      updateItemSettings(id, 'quality', target.value);
+    } else if (target.classList.contains('item-scale')) {
+      updateItemSettings(id, 'scale', target.value);
+    }
+  });
   
-  // Initialize Lucide Vector Graphics Icon Engine Font Nodes
-  if (window.lucide) { lucide.createIcons(); }
-});
-
-// Trigger File System Selection Window Dialog Launcher Hook
-function triggerUpload() {
-  document.getElementById('file-input').click();
+  queueList.addEventListener('click', (e) => {
+    const auditBtn = e.target.closest('.btn-audit-trigger');
+    if (auditBtn) {
+      launchVisualAuditModal(auditBtn.dataset.id);
+    }
+  });
 }
 
-// Input Select Change Entry Hook Event Handler
-function handleFileSelect(event) {
-  if (event.target.files && event.target.files.length > 0) {
-    processIncomingFiles(event.target.files);
-    event.target.value = ''; // Reset slot descriptor index
-  }
-}
+if (window.lucide) { lucide.createIcons(); }
 
-// Core File Queue Registration Array Ingestion Architecture Loop
 function processIncomingFiles(fileList) {
   Array.from(fileList).forEach(file => {
     if (!file.type.startsWith('image/')) {
-      alert(`Asset tracking skip: "${file.name}" is not a valid graphic image schema format.`);
+      alert(`Format skip error: "${file.name}" is not a valid media type.`);
       return;
     }
 
@@ -76,7 +126,6 @@ function processIncomingFiles(fileList) {
       height: 0
     };
 
-    // Extract exact native resolution data markers via image preloader instance
     const img = new Image();
     img.onload = () => {
       item.width = img.naturalWidth;
@@ -89,19 +138,6 @@ function processIncomingFiles(fileList) {
   });
 }
 
-// Sync Global Sliders and Output Options with Settings Panel Labels
-function updateBulkSettings() {
-  const format = document.getElementById('bulk-format').value;
-  const quality = document.getElementById('bulk-quality').value;
-  const scale = document.getElementById('bulk-scale-label');
-
-  document.getElementById('bulk-quality-label').innerText = quality + '%';
-  if (scale) {
-    document.getElementById('bulk-scale-label').innerText = document.getElementById('bulk-scale').value + '%';
-  }
-}
-
-// Apply settings configuration states to current item elements across the queue matrix arrays
 function applyBulkToQueue() {
   const format = document.getElementById('bulk-format').value;
   const quality = parseInt(document.getElementById('bulk-quality').value);
@@ -113,21 +149,18 @@ function applyBulkToQueue() {
       item.quality = quality;
       item.scale = scale;
       
-      // Update individual template field DOM selector mappings directly
       const fEl = document.getElementById(`fmt-${item.id}`);
       const qEl = document.getElementById(`qlt-${item.id}`);
       const sEl = document.getElementById(`scl-${item.id}`);
       
       if (fEl) fEl.value = format;
       if (qEl) qEl.value = quality;
-      if (sEl) scl.value = scale;
+      if (sEl) sEl.value = scale;
     }
   });
-  
-  showBannerAlert("Settings configuration profile mapped globally onto remaining queued queue entries.");
+  showBannerAlert("Bulk parameters loaded into items.");
 }
 
-// Synchronize state configurations across standalone single element items
 function updateItemSettings(id, key, value) {
   const item = queue.find(x => x.id === id);
   if (item) {
@@ -135,11 +168,8 @@ function updateItemSettings(id, key, value) {
   }
 }
 
-// Dynamic Template Grid Interface Construction Engine
 function renderQueue() {
-  const queueList = document.getElementById('queue-list');
   const queueSection = document.getElementById('queue-section');
-  
   if (queue.length === 0) {
     queueSection.classList.add('hidden');
     queueList.innerHTML = '';
@@ -167,7 +197,7 @@ function renderQueue() {
             <div class="controls-grid" id="controls-${item.id}">
               <div class="input-wrapper">
                 <label>Format</label>
-                <select id="fmt-${item.id}" onchange="updateItemSettings('${item.id}', 'format', this.value)">
+                <select id="fmt-${item.id}" data-id="${item.id}" class="item-format">
                   <option value="webp" ${item.format === 'webp' ? 'selected' : ''}>WEBP</option>
                   <option value="jpeg" ${item.format === 'jpeg' ? 'selected' : ''}>JPEG</option>
                   <option value="png" ${item.format === 'png' ? 'selected' : ''}>PNG</option>
@@ -176,17 +206,17 @@ function renderQueue() {
               
               <div class="input-wrapper">
                 <label>Quality</label>
-                <input type="number" id="qlt-${item.id}" min="10" max="100" value="${item.quality}" onchange="updateItemSettings('${item.id}', 'quality', this.value)">
+                <input type="number" id="qlt-${item.id}" data-id="${item.id}" class="item-quality" min="10" max="100" value="${item.quality}">
               </div>
               
               <div class="input-wrapper">
                 <label>Scale (%)</label>
-                <input type="number" id="scl-${item.id}" min="10" max="100" value="${item.scale}" onchange="updateItemSettings('${item.id}', 'scale', this.value)">
+                <input type="number" id="scl-${item.id}" data-id="${item.id}" class="item-scale" min="10" max="100" value="${item.scale}">
               </div>
             </div>
             
             <div id="progress-wrapper-${item.id}" class="hidden">
-              <div class="loading-track"><div id="bar-${item.id}" class="loading-fill" style="width: 0%;"></div></div>
+              <div class="loading-track"><div id="bar-${item.id}" class="loading-fill"></div></div>
             </div>
             
             <div id="result-badge-${item.id}" class="done-badge hidden"></div>
@@ -196,30 +226,30 @@ function renderQueue() {
     `;
   }).join('');
   
+  queue.forEach(item => {
+    if (item.status === 'done') { finalizeItemUI(item); }
+  });
+  
   if (window.lucide) { lucide.createIcons(); }
 }
 
-// Primary GPU-Accelerated Canvas Transform & Compression Worker Pipeline Execution Logic
 async function compressImage(item) {
   return new Promise((resolve) => {
     item.status = 'processing';
-    
     document.getElementById(`controls-${item.id}`).classList.add('hidden');
     document.getElementById(`progress-wrapper-${item.id}`).classList.remove('hidden');
-    document.getElementById(`bar-${item.id}`).style.width = '45%';
+    document.getElementById('bar-' + item.id).style.width = '45%';
     
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      
       const scaleFactor = item.scale / 100;
       const targetWidth = Math.max(1, Math.round(img.naturalWidth * scaleFactor));
       const targetHeight = Math.max(1, Math.round(img.naturalHeight * scaleFactor));
       
       canvas.width = targetWidth;
       canvas.height = targetHeight;
-      
       ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
       
       let mimeType = 'image/webp';
@@ -227,8 +257,7 @@ async function compressImage(item) {
       if (item.format === 'png') mimeType = 'image/png';
       
       const encoderQuality = item.quality / 100;
-      
-      document.getElementById(`bar-${item.id}`).style.width = '80%';
+      document.getElementById('bar-' + item.id).style.width = '80%';
       
       canvas.toBlob((blob) => {
         if (blob) {
@@ -236,57 +265,56 @@ async function compressImage(item) {
           item.processedSize = blob.size;
           item.processedUrl = URL.createObjectURL(blob);
           item.status = 'done';
-          
-          document.getElementById(`bar-${item.id}`).style.width = '100%';
+          document.getElementById('bar-' + item.id).style.width = '100%';
           finalizeItemUI(item);
         } else {
           item.status = 'error';
-          showBannerAlert(`Compression routine crashed out on file tracking ID element context: ${item.name}`);
+          showBannerAlert(`Compression error encountered.`);
         }
         resolve();
       }, mimeType, encoderQuality);
     };
-    
-    img.onerror = () => {
-      item.status = 'error';
-      resolve();
-    };
-    
+    img.onerror = () => { item.status = 'error'; resolve(); };
     img.src = item.previewUrl;
   });
 }
 
 function finalizeItemUI(item) {
-  document.getElementById(`progress-wrapper-${item.id}`).classList.add('hidden');
+  const progressWrap = document.getElementById(`progress-wrapper-${item.id}`);
+  if (progressWrap) progressWrap.classList.add('hidden');
   
   const statusIcon = document.getElementById(`status-icon-${item.id}`);
-  statusIcon.className = "indicator-icon bg-green";
-  statusIcon.innerHTML = `<i data-lucide="check" style="width:12px; height:12px;"></i>`;
+  if (statusIcon) {
+    statusIcon.className = "indicator-icon";
+    statusIcon.innerHTML = `<i data-lucide="check" style="width:12px; height:12px; color:#000;"></i>`;
+  }
   
   const compressedKB = item.processedSize / 1024;
   const savingsPercent = Math.max(0, Math.round(((item.originalSize - item.processedSize) / item.originalSize) * 100));
-  
   const badge = document.getElementById(`result-badge-${item.id}`);
-  badge.classList.remove('hidden');
-  badge.innerHTML = `
-    <div style="display:flex; align-items:center; gap:0.5rem; width:100%; justify-content:space-between;">
-      <span>Output size saved down to: <strong>${compressedKB.toFixed(1)} KB</strong></span>
-      <span class="saving-badge">${savingsPercent}% Smaller</span>
-    </div>
-    <div class="card-actions" style="margin-top:8px;">
-      <button onclick="launchVisualAuditModal('${item.id}')" class="btn-white" style="padding:4px 8px; font-size:10px; border-radius:6px;">
-        Audit Layout Split
-      </button>
-      <a href="${item.processedUrl}" download="optimized_${item.name.split('.')[0]}.${item.format}" class="btn-black" style="padding:4px 8px; font-size:10px; border-radius:6px; text-decoration:none;">
-        Save Asset
-      </a>
-    </div>
-  `;
   
+  if (badge) {
+    badge.classList.remove('hidden');
+    badge.innerHTML = `
+      <div style="display:flex; align-items:center; gap:0.5rem; width:100%; justify-content:space-between;">
+        <span>Output Size: <strong>${compressedKB.toFixed(1)} KB</strong></span>
+        <span class="saving-badge">${savingsPercent}% Smaller</span>
+      </div>
+      <div class="card-actions">
+        <button data-id="${item.id}" class="btn-white-compact btn-audit-trigger">
+          Audit Layout Split
+        </button>
+        <a href="${item.processedUrl}" download="optimized_${item.name.split('.')[0]}.${item.format}" class="btn-black" style="padding:4px 8px; font-size:10px; border-radius:6px; display:inline-block;">
+          Save Asset
+        </a>
+      </div>
+    `;
+  }
   if (window.lucide) { lucide.createIcons(); }
 }
 
 async function processAll() {
+  if (queue.length === 0) return;
   const processBtn = document.getElementById('process-all-btn');
   const txt = document.getElementById('process-all-text');
   
@@ -301,8 +329,8 @@ async function processAll() {
   }
   
   txt.innerText = "Process Run Cycle Completed";
-  document.getElementById('zip-btn').disabled = false;
-  showBannerAlert("Bulk acceleration workflow completed processing successfully across the runtime pipeline stack array targets.");
+  if (zipBtn) zipBtn.disabled = false;
+  showBannerAlert("Local batch compression complete.");
 }
 
 function updateDashboardUI() {
@@ -340,13 +368,11 @@ function updateDashboardUI() {
   if (doneItems > 0 && totalOriginalBytes > totalProcessedBytes) {
     savingsBox.classList.remove('hidden');
     const savedBytes = totalOriginalBytes - totalProcessedBytes;
-    
     if (savedBytes > 1024 * 1024) {
       document.getElementById('savings-bytes-label').innerText = (savedBytes / (1024 * 1024)).toFixed(2) + ' MB';
     } else {
       document.getElementById('savings-bytes-label').innerText = (savedBytes / 1024).toFixed(1) + ' KB';
     }
-    
     const pct = Math.round((savedBytes / totalOriginalBytes) * 100);
     document.getElementById('savings-percent-label').innerText = `Total Bandwidth Saved (${pct}%)`;
   } else {
@@ -355,14 +381,9 @@ function updateDashboardUI() {
 }
 
 function downloadAllZip() {
-  if (!window.JSZip) {
-    alert("ZIP engine module library missing.");
-    return;
-  }
-  
+  if (!window.JSZip) return;
   const zip = new JSZip();
   let addedCount = 0;
-  
   queue.forEach(item => {
     if (item.status === 'done' && item.processedBlob) {
       const cleanName = item.name.split('.')[0];
@@ -370,12 +391,7 @@ function downloadAllZip() {
       addedCount++;
     }
   });
-  
-  if (addedCount === 0) {
-    alert("Empty package payload parameter tracking structure layout data compilation index target state exception.");
-    return;
-  }
-  
+  if (addedCount === 0) return;
   zip.generateAsync({ type: 'blob' }).then((content) => {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(content);
@@ -389,32 +405,25 @@ function clearQueue() {
     if (x.previewUrl) URL.revokeObjectURL(x.previewUrl);
     if (x.processedUrl) URL.revokeObjectURL(x.processedUrl);
   });
-  
   queue = [];
   totalOriginalBytes = 0;
   totalProcessedBytes = 0;
-  
   document.getElementById('process-all-btn').disabled = false;
   document.getElementById('process-all-text').innerText = "Process All Assets";
-  document.getElementById('zip-btn').disabled = true;
-  
+  if (zipBtn) zipBtn.disabled = true;
   renderQueue();
   updateDashboardUI();
-  showBannerAlert("Sandbox pipeline environment state memory modules purged cleared down completely clean.");
+  showBannerAlert("Queue cleared down completely.");
 }
-
-let currentActiveCompareItem = null;
 
 function launchVisualAuditModal(id) {
   const item = queue.find(x => x.id === id);
   if (!item || !item.processedUrl) return;
-  
   currentActiveCompareItem = item;
   
   document.getElementById('compare-title').innerText = `Auditing Compression Profile: ${item.name}`;
   document.getElementById('compare-img-original').src = item.previewUrl;
   document.getElementById('compare-img-compressed').src = item.processedUrl;
-  
   document.getElementById('modal-metric-orig').innerText = (item.originalSize / 1024).toFixed(1) + ' KB';
   document.getElementById('modal-metric-comp').innerText = (item.processedSize / 1024).toFixed(1) + ' KB';
   
@@ -435,14 +444,14 @@ function launchVisualAuditModal(id) {
 
 function handleCompareSlider(val) {
   if (!currentActiveCompareItem) return;
-  
   const line = document.getElementById('compare-slider-line');
   const clipContainer = document.getElementById('compare-clip-container');
-  
+  const sliderInput = document.getElementById('compare-slider');
   if (line && clipContainer) {
     line.style.left = val + '%';
-    clipContainer.style.clipPath = `polygon(${val}% 0, 100% 0, 100% 100%, ${val}% 100%)`;
+    clipContainer.style.clipPath = `polygon(0 0, ${val}% 0, ${val}% 100%, 0 100%)`;
   }
+  if (sliderInput) sliderInput.value = val;
 }
 
 function closeCompareModal() {
@@ -453,13 +462,7 @@ function closeCompareModal() {
 function showBannerAlert(msg) {
   const alertZone = document.getElementById('global-message-zone');
   if (!alertZone) return;
-  
-  alertZone.innerHTML = `
-    <div style="background-color:#18181b; color:#ffffff; border:1px solid #C5A059; padding:0.75rem 1rem; border-radius:12px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.5); font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; justify-content:space-between;">
-      <span>${msg}</span>
-    </div>
-  `;
-  
+  alertZone.innerHTML = `<div class="toast-body">${msg}</div>`;
   alertZone.classList.remove('hidden');
   setTimeout(() => { alertZone.classList.add('hidden'); }, 3500);
 }
