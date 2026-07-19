@@ -185,7 +185,9 @@ function renderQueue() {
   }
 
   queueSection.classList.remove('hidden');
-  queueList.innerHTML = queue.map(item => {
+  
+  /* Creates a shallow copy and reverses it on the fly to render the newest file at the very top */
+  queueList.innerHTML = [...queue].reverse().map(item => {
     const sizeKB = (item.originalSize / 1024).toFixed(1) + ' KB';
     const specLabel = item.width > 0 ? `${item.width}x${item.height}px | ${sizeKB}` : `Processing Specs... | ${sizeKB}`;
     
@@ -333,7 +335,6 @@ async function processAll() {
   isProcessingActive = true;
   updateDashboardUI();
   
-  // Scans the active array dynamically to process remaining files sequentially
   for (let i = 0; i < queue.length; i++) {
     if (queue[i].status === 'pending') {
       await compressImage(queue[i]);
@@ -365,7 +366,6 @@ function updateDashboardUI() {
     if (activeDash) activeDash.classList.add('hidden');
   }
 
-  // Handle giant button control state toggles dynamically based on running threads
   const processBtn = document.getElementById('process-all-btn');
   const txt = document.getElementById('process-all-text');
   if (processBtn && txt) {
@@ -427,7 +427,6 @@ function downloadAllZip() {
   
   if (addedCount === 0) return;
   
-  // Uses a binary Blob download to safely navigate past strict server CSP policies
   zip.generateAsync({ type: 'blob' }).then((content) => {
     const link = document.createElement('a');
     const url = URL.createObjectURL(content);
