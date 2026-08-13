@@ -51,7 +51,7 @@ window.HP_CONTENT = {
       title: "Standard Operating Silence",
       subtitle: "The truth was never meant to survive.",
       author: "Colin Bamforth",
-      asin: "B0HDMKSXN3", // Replace YOUR_ASIN_HERE with your Amazon ASIN (e.g. B0XXXXXX)
+      asin: "B0HDMKSXN3",
       category: "International thriller",
       direct: false,
       coverImage: "assets/SOS.webp",
