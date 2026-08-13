@@ -50,10 +50,6 @@
     return `https://${market.host}/dp/${book.asin}`;
   }
 
-  function setRoute(route) {
-    if (location.hash !== route) location.hash = route;
-  }
-
   function getRouteParts() {
     const rawHash = location.hash || "#home";
     const [route, query = ""] = rawHash.split("?");
@@ -103,6 +99,11 @@
     const market = getMarketplace();
     const buyUrl = amazonUrl(book, market);
     const directAvailable = data.directSales.enabled && book.direct;
+    const emailAddr = data.company.contactEmail || "contact@boundtext.com";
+    const mailSubject = encodeURIComponent(`Signed Copy Request - ${book.title}`);
+    const mailBody = encodeURIComponent(`Hi Colin,\n\nI would like to order a signed copy of ${book.title}. Please send payment details for direct bank transfer.\n\nThank you!`);
+    const signedMailUrl = `mailto:${emailAddr}?subject=${mailSubject}&body=${mailBody}`;
+
     return `
       <article class="book-card" data-author="${book.author}" data-category="${book.category}">
         ${coverArt(book)}
@@ -116,11 +117,21 @@
           <p>${book.description}</p>
           ${book.status ? `<p class="status-pill">${book.status}</p>` : ""}
           ${book.isbn ? `<p class="isbn-note" style="font-size: 14px; margin-top: 8px; color: var(--color-muted, #666);"><small><strong>ISBN:</strong> ${book.isbn} &mdash; Order from your local bookshop</small></p>` : ""}
-          <div class="book-actions">
+          ${
+            book.signedCopy
+              ? `<p class="signed-note" style="font-size: 14px; margin-top: 8px; padding: 10px 14px; background: rgba(255, 92, 38, 0.08); border: 1px solid rgba(255, 92, 38, 0.25); border-radius: 8px;"><small><strong>Signed Copies Direct:</strong> Email <a href="${signedMailUrl}" style="text-decoration: underline;">${emailAddr}</a> to arrange a direct author-signed copy. Payment accepted via direct bank transfer.</small></p>`
+              : ""
+          }
+          <div class="book-actions" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
             ${
               buyUrl
                 ? `<a class="button primary" href="${buyUrl}" target="_blank" rel="noopener">Buy on Amazon ${market.code}${iconArrow()}</a>`
                 : `<span class="button muted">Amazon link pending</span>`
+            }
+            ${
+              book.signedCopy
+                ? `<a class="button secondary" href="${signedMailUrl}">Order Signed Copy ✉</a>`
+                : ""
             }
             ${
               directAvailable
