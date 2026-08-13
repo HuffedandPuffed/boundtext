@@ -5,6 +5,7 @@
   const menu = document.querySelector("#site-menu");
   const marketKey = "hp-marketplace";
   const defaultMarket = data.marketplaces.find((market) => market.default) || data.marketplaces[0];
+
   function iconArrow() {
     return document.querySelector("#icon-arrow").innerHTML;
   }
@@ -114,6 +115,7 @@
           ${book.subtitle ? `<p class="subtitle">${book.subtitle}</p>` : ""}
           <p>${book.description}</p>
           ${book.status ? `<p class="status-pill">${book.status}</p>` : ""}
+          ${book.isbn ? `<p class="isbn-note" style="font-size: 14px; margin-top: 8px; color: var(--color-muted, #666);"><small><strong>ISBN:</strong> ${book.isbn} &mdash; Order from your local bookshop</small></p>` : ""}
           <div class="book-actions">
             ${
               buyUrl
@@ -143,7 +145,7 @@
           <p>${data.company.intro}</p>
           <div class="hero-actions">
             <a class="button primary" href="#books">Browse books ${iconArrow()}</a>
-            <a class="button secondary" href="#authors">Meet the authors</a>
+            <a class="button secondary" href="#authors">Meet the author</a>
           </div>
         </div>
       </section>
@@ -183,7 +185,7 @@
           We are an independent publisher committed to delivering high-quality, character-led fiction, practical nonfiction, and engaging puzzle books directly to curious readers worldwide. We believe in keeping the list focused, the voice human, and the door open for compelling new ideas.
         </p>
         <br><br>
-        <a class="button primary" href="#authors">Meet our authors ${iconArrow()}</a>
+        <a class="button primary" href="#authors">Meet the author ${iconArrow()}</a>
       </section>
     `;
   }
@@ -193,11 +195,11 @@
       <section class="page-hero">
         <p class="eyebrow">Contact Us</p>
         <h1>Get in touch.</h1>
-        <p>Whether you are an author looking to submit a manuscript or a reader with a question, we would love to hear from you.</p>
+        <p>Whether you are a reader with a question or interested in signed copies, we would love to hear from you.</p>
       </section>
       <section class="section" style="text-align: center;">
-        <h2>Join Our Mailing List & Enquiries</h2>
-        <p>We are currently updating our automated systems. To receive launch updates, private announcements, or to pitch a project, please drop us a direct line at:</p>
+        <h2>Enquiries</h2>
+        <p>To receive updates, private announcements, or inquire about direct orders, drop us a line at:</p>
         <br>
         <p style="font-size: 24px; font-weight: bold;">
           <a href="mailto:contact@boundtext.com">contact@boundtext.com</a>
@@ -209,21 +211,21 @@
   function renderAuthors() {
     main.innerHTML = `
       <section class="page-hero">
-        <p class="eyebrow">Authors</p>
-        <h1>Three voices, one compact publishing house.</h1>
-        <p>Meet the minds behind our sharp-edged fiction, practical nonfiction, and engaging puzzle books.</p>
+        <p class="eyebrow">Author & Publisher</p>
+        <h1>Behind Bound Text Publishing.</h1>
+        <p>Meet the mind behind our sharp-edged fiction, practical nonfiction, and engaging puzzle books.</p>
       </section>
       <section class="authors-list">
         ${data.authors
           .map(
             (author) => `
               <article class="author-panel" id="${author.id}">
-               <div class="author-portrait">
-  ${author.image 
-    ? `<img src="${author.image}" alt="Portrait of ${author.name}">` 
-    : `<span>${author.initials}</span>`
-  }
-</div>
+                <div class="author-portrait">
+                  ${author.image 
+                    ? `<img src="${author.image}" alt="Portrait of ${author.name}">` 
+                    : `<span>${author.initials}</span>`
+                  }
+                </div>
                 <div>
                   <p class="eyebrow">${author.role}</p>
                   <h2>${author.name}</h2>
@@ -249,7 +251,7 @@
         <div>
           <p class="eyebrow">Bookshop</p>
           <h1>${selectedAuthor ? `${selectedAuthor}'s books.` : "Bound Text."}</h1>
-          <p>${selectedAuthor ? `Showing only titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
+          <p>${selectedAuthor ? `Showing titles by ${selectedAuthor}.` : "Amazon links are generated from each ASIN and the selected marketplace."}</p>
         </div>
         ${renderMarketplaceSelect("inline")}
       </section>
@@ -309,159 +311,6 @@
     apply();
   }
 
-  function cleanCode(value) {
-    return value.toUpperCase().replace(/[^0-9X]/g, "");
-  }
-
-  function renderBarcode() {
-    main.innerHTML = `
-      <section class="page-hero">
-        <p class="eyebrow">Barcode Maker</p>
-        <h1>Barcode and QR code maker.</h1>
-        <p>Create ISBN barcodes with genuine checksum validation, publishing codes, retail labels, internal inventory codes, and QR codes for public use.</p>
-      </section>
-     
-      <section class="tool-layout">
-        <form class="tool-panel" id="barcode-form">
-          <label>
-            <span>Barcode or QR format</span>
-            <select id="barcode-type">
-              <option value="isbn">ISBN-13 / Bookland EAN</option>
-              <option value="issn">ISSN to EAN-13</option>
-              <option value="ismn">ISMN / Music EAN</option>
-              <option value="ean13">EAN-13</option>
-              <option value="ean8">EAN-8</option>
-              <option value="upca">UPC-A</option>
-              <option value="upce">UPC-E</option>
-              <option value="code128">Code 128</option>
-              <option value="code39">Code 39</option>
-              <option value="itf14">ITF-14 carton code</option>
-              <option value="interleaved2of5">Interleaved 2 of 5</option>
-              <option value="datamatrix">Data Matrix</option>
-              <option value="azteccode">Aztec Code</option>
-              <option value="pdf417">PDF417</option>
-              <option value="qrcode">QR Code</option>
-            </select>
-          </label>
-          <label>
-            <span>Value</span>
-            <input id="barcode-input" autocomplete="off" value="978000000000">
-          </label>
-          <div class="split-actions">
-            <button class="button primary" type="submit">Generate</button>
-            <button class="button secondary" id="download-barcode" type="button">Download PNG</button>
-          </div>
-          <p class="quiet" id="barcode-message"></p>
-          <details class="format-help">
-            <summary>Accepted values for each format</summary>
-            <dl>
-              <dt>ISBN-13 / Bookland EAN</dt><dd>ISBN-10, 12 ISBN/EAN digits, or a valid 13-digit ISBN beginning 978 or 979.</dd>
-              <dt>ISSN to EAN-13</dt><dd>Enter the 7 or 8 ISSN digits. The site converts it to a 977-prefixed EAN-13.</dd>
-              <dt>ISMN / Music EAN</dt><dd>Enter 12 digits beginning 9790, or a valid 13-digit ISMN EAN beginning 9790.</dd>
-              <dt>EAN-13</dt><dd>Enter 12 digits to add the check digit, or a valid 13-digit EAN.</dd>
-              <dt>EAN-8</dt><dd>Enter 7 digits to add the check digit, or a valid 8-digit EAN-8.</dd>
-              <dt>UPC-A</dt><dd>Enter 11 digits to add the check digit, or a valid 12-digit UPC-A.</dd>
-              <dt>UPC-E</dt><dd>Enter 6 compressed digits, or 8 digits including number system and check digit.</dd>
-              <dt>Code 128</dt><dd>Any ordinary text, numbers, SKU, batch code, URL, or internal reference.</dd>
-              <dt>Code 39</dt><dd>Uppercase letters, numbers, spaces, and these symbols: - . $ / + %</dd>
-              <dt>ITF-14 carton code</dt><dd>Enter 13 digits to add the check digit, or a valid 14-digit GTIN/carton code.</dd>
-              <dt>Interleaved 2 of 5</dt><dd>Numbers only, with an even number of digits.</dd>
-              <dt>Data Matrix, Aztec Code, PDF417, QR Code</dt><dd>Any useful text such as a URL, ISBN, contact detail, product note, or inventory reference.</dd>
-            </dl>
-          </details>
-        </form>
-        <div class="barcode-preview">
-          <canvas id="barcode-canvas" width="720" height="320" aria-label="Barcode preview"></canvas>
-        </div>
-      </section>
-    `;
-    const form = document.querySelector("#barcode-form");
-    const type = document.querySelector("#barcode-type");
-    const input = document.querySelector("#barcode-input");
-    const message = document.querySelector("#barcode-message");
-    const canvas = document.querySelector("#barcode-canvas");
-    let autoGenerateTimer = 0;
-
-    function generate(event) {
-      if (event) event.preventDefault();
-      const selectedType = type.value;
-      let rawValue = input.value.trim();
-
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (!rawValue) {
-        message.textContent = "Enter a value before generating.";
-        return;
-      }
-
-      const isNumericType = ["isbn", "issn", "ismn", "ean13", "ean8", "upca", "upce", "itf14", "interleaved2of5"].includes(selectedType);
-      if (isNumericType) {
-        rawValue = rawValue.replace(/[- ]/g, "");
-      }
-
-      try {
-        const isMatrix2D = ["qrcode", "datamatrix", "azteccode", "pdf417"].includes(selectedType);
-        let targetBcid = selectedType;
-
-        if (selectedType === "isbn") {
-          if (rawValue.length === 10) {
-            const base12 = "978" + rawValue.substring(0, 9);
-            let sum = 0;
-            for (let i = 0; i < 12; i++) sum += parseInt(base12[i], 10) * (i % 2 === 0 ? 1 : 3);
-            rawValue = base12 + ((10 - (sum % 10)) % 10);
-          }
-          targetBcid = "ean13";
-        } else if (selectedType === "issn") {
-          if (rawValue.length === 7 || rawValue.length === 8) {
-            const base12 = "977" + rawValue.substring(0, 7) + "00";
-            let sum = 0;
-            for (let i = 0; i < 12; i++) sum += parseInt(base12[i], 10) * (i % 2 === 0 ? 1 : 3);
-            rawValue = base12 + ((10 - (sum % 10)) % 10);
-          }
-          targetBcid = "ean13";
-        } else if (selectedType === "ismn") {
-          targetBcid = "ean13";
-        }
-
-        window.bwipjs.toCanvas(canvas, {
-          bcid: targetBcid,
-          text: rawValue,
-          scale: 3,
-          includetext: !isMatrix2D,
-          textxalign: "center",
-          backgroundcolor: "ffffff" 
-        });
-        message.textContent = `${type.options[type.selectedIndex].text} generated natively inside your secure repository layout.`;
-      } catch (e) {
-        message.textContent = "Invalid characters or data length configuration rules for the selected format standard.";
-      }
-    }
-
-    form.addEventListener("submit", generate);
-    
-    function queueGenerate() {
-      window.clearTimeout(autoGenerateTimer);
-      autoGenerateTimer = window.setTimeout(() => generate(), 250);
-    }
-
-    type.addEventListener("change", generate);
-    input.addEventListener("input", queueGenerate);
-    
-    document.querySelector("#download-barcode").addEventListener("click", () => {
-      const cleanFileName = `barcode-${input.value.replace(/[^a-zA-Z0-9]/g, "") || "draft"}.png`;
-      const link = document.createElement("a");
-      link.download = cleanFileName;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
-    
-    generate();
-  }
-
   function wireGlobalControls() {
     document.querySelectorAll("[data-marketplace]").forEach((select) => {
       select.addEventListener("change", (event) => {
@@ -489,8 +338,6 @@
     else if (route === "#contact") renderContact();
     else if (route === "#authors") renderAuthors();
     else if (route === "#books") renderBooks(params.get("author") || "");
-    else if (route === "#barcode") renderBarcode();
-    else if (route === "#barcode-pro") renderBarcode();
     else renderHome();
 
     wireGlobalControls();
