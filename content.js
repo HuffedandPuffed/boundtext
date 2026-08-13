@@ -10,7 +10,7 @@ window.HP_CONTENT = {
     strapline: "Independent books with craft, nerve, and a quiet spark of mischief.",
     intro:
       "A small press for sharp-edged fiction, practical books, and word search books. We keep the list focused, the voice human, and the door open for curious readers.",
-    contactEmail: "colin@boundtext.com",
+    contactEmail: "contact@boundtext.com",
     directSalesNote:
       "Books can also be ordered through local bookstores. Limited signed copies of Standard Operating Silence are available directly upon request."
   },
@@ -53,10 +53,11 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0HDMKSXN3",
       isbn: "978-1067101077",
+      signedCopy: true,
       category: "International thriller",
       direct: false,
       coverImage: "assets/covers/SOS.webp",
-      description: "Former reconnaissance soldier, paramedic, and clinical educator Raf Rodriguez is used to trauma, chaos, and pressure. When unrelated incidents begin to overlap, altered reports and missing details point toward a conspiracy protected by procedure. A gripping thriller of emergency medicine, law enforcement, institutional self-interest, and the danger of asking the wrong questions. (Signed copies available directly)."
+      description: "Former reconnaissance soldier, paramedic, and clinical educator Raf Rodriguez is used to trauma, chaos, and pressure. When unrelated incidents begin to overlap, altered reports and missing details point toward a conspiracy protected by procedure. A gripping thriller of emergency medicine, law enforcement, institutional self-interest, and the danger of asking the wrong questions."
     },
     {
       title: "Shift Change",
@@ -64,6 +65,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0FD8C7P1H",
       isbn: "978-1067093204",
+      signedCopy: false,
       category: "Fictional biography",
       direct: false,
       coverImage: "assets/covers/shift-change.webp",
@@ -75,6 +77,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0F8GF76M2",
       isbn: "",
+      signedCopy: false,
       category: "Self-help",
       direct: false,
       coverImage: "assets/covers/overwhelmed-by-stress-us.webp",
@@ -86,6 +89,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0FFSLSV2G",
       isbn: "978-1067093211",
+      signedCopy: false,
       category: "Self-help",
       direct: false,
       coverImage: "assets/covers/overwhelmed-by-stress-au-nz.webp",
@@ -96,6 +100,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0F5QCYXNP",
       isbn: "",
+      signedCopy: false,
       category: "Puzzle books",
       direct: false,
       coverImage: "assets/covers/motorcycle-word-search.webp",
@@ -106,6 +111,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0F5QVCCJ7",
       isbn: "",
+      signedCopy: false,
       category: "Puzzle books",
       direct: false,
       coverImage: "assets/covers/construction-word-search.webp",
@@ -116,6 +122,7 @@ window.HP_CONTENT = {
       author: "Colin Bamforth",
       asin: "B0F5HYQQKX",
       isbn: "",
+      signedCopy: false,
       category: "Puzzle books",
       direct: false,
       coverImage: "assets/covers/fishing-word-search.webp",
