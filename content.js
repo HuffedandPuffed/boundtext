@@ -72,7 +72,7 @@ window.HP_CONTENT = {
       category: "International thriller",
       status: "Pending September 2026",
       direct: false,
-      coverImage: "assets/covers/standard-operating-silence.webp",
+      coverImage: "assets/covers/SOS.webp",
       description: "Former reconnaissance soldier, paramedic, and clinical educator Raf Rodriguez is used to trauma, chaos, and pressure. When unrelated incidents begin to overlap, altered reports and missing details point toward a conspiracy protected by procedure. A gripping thriller of emergency medicine, law enforcement, institutional self-interest, and the danger of asking the wrong questions."
     },
     {
