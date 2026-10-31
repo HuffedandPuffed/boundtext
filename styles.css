@@ -446,6 +446,12 @@ textarea {
   border-radius: 8px;
   padding: 0.8rem;
   box-shadow: 0 12px 35px rgba(21, 32, 43, 0.06);
+  /* Keep text directly under the cover instead of spreading spare height between rows */
+  align-content: start;
+}
+
+.book-card h3 {
+  color: var(--ink);
 }
 
 .book-grid.compact .book-card {
