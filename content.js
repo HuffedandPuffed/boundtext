@@ -12,7 +12,7 @@ window.HP_CONTENT = {
       "A small press for sharp-edged fiction, practical books, and word search books. We keep the list focused, the voice human, and the door open for curious readers.",
     contactEmail: "contact@boundtext.com",
     directSalesNote:
-      "Books can also be ordered through local bookstores. Limited signed copies of Standard Operating Silence are available directly upon request."
+      "Books can also be ordered through local bookstores. Limited signed copies of Standard Operating Silence and Finn and the Secret Path are available directly upon request."
   },
 
   authors: [
@@ -47,6 +47,18 @@ window.HP_CONTENT = {
   },
 
   books: [
+    {
+      title: "Finn and the Secret Path",
+      subtitle: "Book one in the Finn Adventure series - ages 4 to 8",
+      author: "Colin Bamforth",
+      asin: "1067315403",
+      isbn: "978-1067315405",
+      signedCopy: true,
+      category: "Children's books",
+      direct: false,
+      coverImage: "assets/covers/finn-and-the-secret-path.webp",
+      description: "Finn loves his morning walks in the Queensland bush, until he finds a narrow sandy path that leads to the edge of a huge canyon full of giant yellow machines - the mine where his mum and dad work. Join Finn at Sunny Creek Mine to see the haul trucks, the dragline and the shining black coal, follow it all the way onto a train that stretches as far as the eye can see, and find out how the land is put back at the end. A gentle, illustrated introduction to mining for curious young readers who always ask \"how does that work?\""
+    },
     {
       title: "Standard Operating Silence",
       subtitle: "The truth was never meant to survive.",
