@@ -84,6 +84,18 @@ window.HP_CONTENT = {
       description: "Set in the fictional city of Thamesreach and written with lived emotional realism, Shift Change follows paramedic Naomi Kerslake through the brutal, beautiful, and relentlessly human work behind the uniform. This revised second edition expands the scenes and deepens the quiet trauma, courage, burnout, and resilience that remain when the sirens go silent."
     },
     {
+      title: "Shift-Worker Stress Workbook",
+      subtitle: "Sleeping after nights, decompressing after a bad job, and keeping family life going on a roster",
+      author: "Colin Bamforth",
+      asin: "106731542X",
+      isbn: "978-1067315429",
+      signedCopy: false,
+      category: "Self-help",
+      direct: false,
+      coverImage: "assets/covers/shift-worker-stress-workbook.webp",
+      description: "For emergency services workers and anyone on shift work - construction, mining, offshore, transport, FIFO and DIDO. Drawing on research from New Zealand, Australia, the UK and the USA, it covers a sleep routine for after nights, a plan for the drive home and the first hours after a bad job, a Shift Check-In to spot your load building before it becomes a crisis, and exercises for family life on a roster. Written to be used, not just read."
+    },
+    {
       title: "Overwhelmed by Stress?",
       subtitle: "A science-backed guide to reducing stress, regaining clarity, and restoring balance. US Edition",
       author: "Colin Bamforth",
