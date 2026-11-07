@@ -454,6 +454,24 @@ textarea {
   color: var(--ink);
 }
 
+.book-card h3 a {
+  text-decoration: none;
+}
+
+.book-card h3 a:hover,
+.book-card h3 a:focus-visible {
+  color: var(--gold-dark);
+  text-decoration: underline;
+}
+
+.book-page-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  color: var(--gold-dark);
+}
+
 .book-grid.compact .book-card {
   grid-template-columns: 1fr;
 }

@@ -6,7 +6,19 @@ Open `index.html` in a browser to view the site. Most routine edits happen in `c
 
 - Company wording: edit `company`.
 - Authors: edit the `authors` array.
-- Books: edit the `books` array. Add an `asin` when an Amazon listing is ready.
+- Books: edit the `books` array. Add an `asin` when an Amazon listing is ready, and a `page` link to the book's page on colinbamforth.com once it has one.
+
+## Adding or changing a book: two places
+
+The book list also lives in `index.html`, between `PLAIN-TEXT COPY START` and `PLAIN-TEXT COPY END`, so Google can read it on its first visit. Visitors never see this copy: `app.js` swaps in the normal site as soon as the page loads.
+
+When you add or change a book in `content.js`:
+
+1. Copy one of the `<article class="book-card">` blocks in `index.html` and change the cover, title, link, description, ISBN and Amazon link to match.
+2. Add the book to the `ItemList` structured data near the bottom of `index.html` (copy an existing entry).
+3. Bump the `?v=` number on `content.js` in `index.html` so browsers fetch the new list.
+
+If that's a chore, ask Claude to "regenerate the Bound Text plain-text book list from content.js".
 - Direct sales: edit `directSales.paymentPageUrl` after choosing Stripe, PayPal, Shopify, or another checkout page.
 - Amazon marketplaces: edit `marketplaces`. The site remembers the viewer's manual selection in the browser.
 - Private page prototype: edit `privatePage.demoPasswords` to test one or more passwords.

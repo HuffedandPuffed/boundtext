@@ -1,11 +1,17 @@
 # Bound Text Publishing
 
-> Independent publisher of character-led fiction, practical nonfiction and word search books.
+> Independent publisher of character-led fiction, practical nonfiction and word search books. Founded by author Colin Bamforth.
 
 ## Key pages
 
 - [Home](https://boundtext.com/): the publisher's books, authors and contact details.
+- [Colin Bamforth](https://colinbamforth.com/): author site with a page for each book.
 
 ## Books
 
-- Character-led fiction, practical nonfiction and word search books: see the homepage for the current list.
+- [Finn and the Secret Path](https://colinbamforth.com/finn-and-the-secret-path/): children's book, ages 4 to 8.
+- [Standard Operating Silence](https://colinbamforth.com/standard-operating-silence/): international thriller.
+- [Shift Change](https://colinbamforth.com/shift-change/): paramedic fiction.
+- [Shift-Worker Stress Workbook](https://colinbamforth.com/shift-worker-stress-workbook/): self-help workbook for shift workers.
+- [Overwhelmed by Stress? (US Edition)](https://colinbamforth.com/overwhelmed-by-stress-us/) and [Australia and New Zealand Edition](https://colinbamforth.com/overwhelmed-by-stress-au-nz/): stress-management guides.
+- [Motorcycle](https://colinbamforth.com/motorcycle-word-search/), [Construction](https://colinbamforth.com/construction-word-search/) and [Fishing](https://colinbamforth.com/fishing-word-search/) Word Search: puzzle books.
