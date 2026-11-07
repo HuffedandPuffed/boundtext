@@ -1,4 +1,4 @@
-# Huffed and Puffed Publishing Website Editing Guide
+# Bound Text Publishing Website Editing Guide
 
 Open `index.html` in a browser to view the site. Most routine edits happen in `content.js`.
 

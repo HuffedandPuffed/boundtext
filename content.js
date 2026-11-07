@@ -22,7 +22,7 @@ window.HP_CONTENT = {
       role: "Publisher, Practical Nonfiction Author & Puzzle-Book Creator",
       initials: "CB",
       image: "assets/Colin.webp",
-      bio: "Colin Bamforth is the visionary behind Bound Text & Huffed and Puffed Publishing. Operating at the intersection of structure and creativity, Colin is a dedicated practical nonfiction author and puzzle-book creator. Driven by a mission to champion human voices and amplify 'useful sparks,' he curates and designs books that engage the mind, challenge curious readers, and bring high-quality independent publishing to life.",
+      bio: "Colin Bamforth is the visionary behind Bound Text Publishing. Operating at the intersection of structure and creativity, Colin is a dedicated practical nonfiction author and puzzle-book creator. Driven by a mission to champion human voices and amplify 'useful sparks,' he curates and designs books that engage the mind, challenge curious readers, and bring high-quality independent publishing to life.",
       note: ""
     }
   ],
