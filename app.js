@@ -112,9 +112,10 @@
             <span>${book.author}</span>
             <span>${book.category}</span>
           </div>
-          <h3>${book.title}</h3>
+          <h3>${book.page ? `<a href="${book.page}">${book.title}</a>` : book.title}</h3>
           ${book.subtitle ? `<p class="subtitle">${book.subtitle}</p>` : ""}
           <p>${book.description}</p>
+          ${book.page ? `<p class="book-page-link"><a href="${book.page}">More about this book ${iconArrow()}</a></p>` : ""}
           ${book.status ? `<p class="status-pill">${book.status}</p>` : ""}
           ${book.isbn ? `<p class="isbn-note" style="font-size: 14px; margin-top: 8px; color: var(--color-muted, #666);"><small><strong>ISBN:</strong> ${book.isbn} &mdash; Order from your local bookshop</small></p>` : ""}
           ${
